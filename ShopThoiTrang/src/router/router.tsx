@@ -10,6 +10,12 @@ import ShoppingCart from "../pages/user/ShoppingCart";
 import Checkout from "../pages/user/Checkout";
 import MyAccount from "../pages/user/MyAccount";
 import LoginRegister from "../pages/user/LoginRegister";
+import ForgotPassword from "../pages/user/ForgotPassword";
+import Contact from "../pages/user/Contact";
+import WishList from "../pages/user/WishList";
+import Posts from "../pages/user/Posts";
+import PostDetail from "../pages/user/PostDetail";
+import NotFound404 from "../pages/NotFound404";
 
 export const webRouter = createBrowserRouter([
     {
@@ -30,8 +36,17 @@ export const webRouter = createBrowserRouter([
                 element: <Shop/>,
 
             }, {
-                path: "shopping-cart",
+                path: "post",
+                element: <Posts/>,
+            }, {
+                path: "post-detail/:id",
+                element: <PostDetail/>,
+            }, {
+                path: "cart",
                 element: <ShoppingCart/>,
+            }, {
+                path: "wishlist",
+                element: <WishList/>,
             }, {
                 path: "checkout",
                 element: <Checkout/>,
@@ -45,6 +60,18 @@ export const webRouter = createBrowserRouter([
                 path: "product/:id",
                 element: <ProductDetail/>,
                 loader: loadId
+            }, {
+                path: "forgot-password",
+                element: <ForgotPassword/>,
+                loader: loadId
+            }, {
+                path: "about",
+                element: <About/>,
+                loader: loadId
+            }, {
+                path: "contact",
+                element: <Contact/>,
+                loader: loadId
             }
             , {
                 path: "admin",
@@ -55,6 +82,11 @@ export const webRouter = createBrowserRouter([
                         element: <DashBoard/>,
                     }
                 ]
-            }]
+            },
+            {
+                path: "/*",
+                element: <NotFound404/>
+            }
+        ]
     },
 ]);

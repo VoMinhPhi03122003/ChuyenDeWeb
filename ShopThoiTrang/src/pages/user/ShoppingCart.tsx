@@ -2,7 +2,6 @@ import PropTypes from "prop-types";
 import React, {Fragment, useState} from "react";
 import {Link} from "react-router-dom";
 import {useToasts} from "react-toast-notifications";
-import {BreadcrumbsItem} from "react-breadcrumbs-dynamic";
 import {connect} from "react-redux";
 import {getDiscountPrice} from "../../helpers/product";
 import {
@@ -15,26 +14,18 @@ import {
 import Breadcrumb from "../../wrappers/breadcrumb/Breadcrumb";
 
 const ShoppingCart = ({
-                  location,
-                  cartItems,
-                  decreaseQuantity,
-                  addToCart,
-                  deleteFromCart,
-                  deleteAllFromCart
-              }: any) => {
+                          cartItems,
+                          decreaseQuantity,
+                          addToCart,
+                          deleteFromCart,
+                          deleteAllFromCart
+                      }: any) => {
     const [quantityCount] = useState(1);
     const {addToast} = useToasts();
     let cartTotalPrice = 0;
 
     return (
         <Fragment>
-
-            <BreadcrumbsItem to={process.env.PUBLIC_URL + "/"}>Trang chủ</BreadcrumbsItem>
-            <BreadcrumbsItem to={process.env.PUBLIC_URL + "/shopping-cart"}>
-                Giỏ hàng
-            </BreadcrumbsItem>
-
-            {/* breadcrumb */}
             <Breadcrumb/>
             <div className="cart-main-area pt-90 pb-100">
                 <div className="container">
