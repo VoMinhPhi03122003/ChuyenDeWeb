@@ -1,6 +1,6 @@
-
 package vn.edu.hcmuaf.cdw.ShopThoiTrang.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.sql.Date;
@@ -20,6 +20,7 @@ public class Size {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String size;
+    private int stock;
     private boolean status;
 
     @Column(name = "released_date")
@@ -36,9 +37,8 @@ public class Size {
     @JoinColumn(name = "updated_by")
     private User updateBy;
 
-    @ManyToMany (fetch = FetchType.LAZY)
-    @JoinTable(name = "product_size",
-            joinColumns = @JoinColumn(name = "size_id"),
-            inverseJoinColumns = @JoinColumn(name = "product_id"))
-    private List<Product> products;
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "variation_id")
+    private Variation variation;
 }

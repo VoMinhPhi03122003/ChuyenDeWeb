@@ -46,32 +46,21 @@ public class Product {
     @JoinColumn(name = "updated_by")
     private User updateBy;
 
-    @JsonIgnore
     @ManyToMany (fetch = FetchType.LAZY)
     @JoinTable(name = "product_categories",
             joinColumns = @JoinColumn(name = "product_id"),
             inverseJoinColumns = @JoinColumn(name = "cate_id"))
     private List<Categories> categories;
 
-    @JsonIgnore
-    @ManyToMany (fetch = FetchType.LAZY)
-    @JoinTable(name = "product_color",
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<Variation> variations;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<ImageProduct> imgProducts;
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "product_promotion",
             joinColumns = @JoinColumn(name = "product_id"),
-            inverseJoinColumns = @JoinColumn(name = "color_id"))
-    private List<Color> colors;
-
-    @JsonIgnore
-    @ManyToMany (fetch = FetchType.LAZY)
-    @JoinTable(name = "product_size",
-            joinColumns = @JoinColumn(name = "product_id"),
-            inverseJoinColumns = @JoinColumn(name = "size_id"))
-    private Set<Size> sizes = new HashSet<>();
-
-    @JsonIgnore
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "product")
-    private ImageProduct imageProduct;
-
-    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<ProductPromotion> productPromotions;
+            inverseJoinColumns = @JoinColumn(name = "promotion_id"))
+    private List<Promotion> promotions;
 
 }
