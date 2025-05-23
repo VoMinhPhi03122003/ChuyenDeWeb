@@ -51,7 +51,7 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(
                     name = "role_id", referencedColumnName = "id"))
     private Collection<Role> roles;
-    @JsonIgnore
+
     @Column(name = "created_date")
     private Date createdDate;
 
