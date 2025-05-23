@@ -7,13 +7,13 @@ import java.sql.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "color")
+@Table(name = "variation")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class Color {
+public class Variation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,9 +35,12 @@ public class Color {
     @JoinColumn(name = "updated_by")
     private User updateBy;
 
-    @ManyToMany (fetch = FetchType.LAZY)
-    @JoinTable(name = "product_color",
-            joinColumns = @JoinColumn(name = "color_id"),
-            inverseJoinColumns = @JoinColumn(name = "product_id"))
-    private List<Product> products;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
+    private Product product;
+
+    @OneToMany(mappedBy = "variation", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Size> sizes;
+
+
 }
