@@ -7,8 +7,6 @@ import MobileMenu from "./MobileMenu";
 
 const Header = ({
                     layout,
-                    top,
-                    borderStyle,
                     headerPaddingClass,
                     headerPositionClass,
                     headerBgClass

@@ -27,13 +27,22 @@ public class RefreshTokenService {
     public Optional<RefreshToken> findByToken(String token) {
         return refreshTokenRepository.findByToken(token);
     }
+    public Optional<RefreshToken> findByUser(Long id) {
+        return refreshTokenRepository.findByUser(userRepository.findById(id).orElse(null));
+    }
+
 
     public RefreshToken createRefreshToken(Long userId) {
-        RefreshToken refreshToken = new RefreshToken();
+        RefreshToken refreshToken = findByUser(userId).orElse(null);
 
-        refreshToken.setUser(userRepository.findById(userId).orElse(null));
-        refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
-        refreshToken.setToken(UUID.randomUUID().toString());
+        if (refreshToken != null) {
+            refreshToken.setToken(UUID.randomUUID().toString());
+        } else {
+            refreshToken = new RefreshToken();
+            refreshToken.setUser(userRepository.findById(userId).orElse(null));
+            refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
+            refreshToken.setToken(UUID.randomUUID().toString());
+        }
 
         refreshToken = refreshTokenRepository.save(refreshToken);
         return refreshToken;
@@ -50,6 +59,6 @@ public class RefreshTokenService {
 
     @Transactional
     public int deleteByUserId(Long userId) {
-        return refreshTokenRepository.deleteByUser(userRepository.findById(userId).orElse(null));
+        return refreshTokenRepository.deleteByUserId(userId);
     }
 }
