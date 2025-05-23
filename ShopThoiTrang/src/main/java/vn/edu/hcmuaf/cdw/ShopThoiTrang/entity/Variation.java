@@ -1,5 +1,6 @@
 package vn.edu.hcmuaf.cdw.ShopThoiTrang.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,6 +32,7 @@ public class Variation {
     @Column(name = "updated_date")
     private Date updateDate;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "updated_by")
     private User updateBy;
