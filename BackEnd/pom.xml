@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>vn.edu.hcmuaf.cdw</groupId>
-    <artifactId>ShopThoiTrang</artifactId>
+    <artifactId>BackEnd</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>war</packaging>
     <name>ShopThoiTrang</name>
