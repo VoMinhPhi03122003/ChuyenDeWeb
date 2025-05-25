@@ -4,9 +4,9 @@ import {Link} from "react-router-dom";
 
 const Logo = ({imageUrl, logoClass}: any) => {
     return (
-        <div className={`d-flex ${logoClass ? logoClass : ""}`}>
-            <Link to={"/"}>
-                <img alt="logo" src={imageUrl}/>
+        <div className={`${logoClass ? logoClass : ""}`}>
+            <Link to={process.env.PUBLIC_URL + "/"}>
+                <img alt="" src={process.env.PUBLIC_URL + imageUrl}/>
             </Link>
         </div>
     );
