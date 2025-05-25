@@ -1,7 +1,7 @@
 import {
     ArrayInput, AutocompleteInput,
-    BooleanInput, DateInput,
-    Edit, ImageField, NullableBooleanInput, NumberInput, ReferenceInput,
+    BooleanInput, Create, DateInput,
+    Edit, ImageField, ImageInput, NullableBooleanInput, NumberInput, ReferenceInput,
     required, SimpleFormIterator, TabbedForm,
     TextInput, useEditContext, useGetList,
 } from "react-admin";
@@ -9,7 +9,7 @@ import {Grid, InputAdornment, Typography} from "@mui/material";
 import React from "react";
 import {Category, Product} from "../types";
 
-const PromotionEdit = () => {
+const PromotionCreate = () => {
 
     const {record, isLoading}: any = useEditContext();
     console.log(record);
@@ -21,7 +21,7 @@ const PromotionEdit = () => {
     console.log(data);
     if (isLoading) return null;
     return (
-        <Edit>
+        <Create>
             <TabbedForm warnWhenUnsavedChanges>
                 <TabbedForm.Tab
                     label="Thông tin khuyến mãi"
@@ -29,7 +29,6 @@ const PromotionEdit = () => {
                 >
                     <Grid container columnSpacing={2}>
                         <Grid item xs={12} sm={12}>
-                            <ImageField source={"thumbnail"} label="Ảnh" sx={{margin: 'auto'}}/>
                         </Grid>
                         <Grid item xs={12} sm={12}>
                             <TextInput source="name" label="Tên khuyến mãi" validate={required()} fullWidth/>
@@ -67,21 +66,6 @@ const PromotionEdit = () => {
                             <NullableBooleanInput source="status" label="Trạng thái" defaultValue={false} fullWidth/>
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
-                            <DateInput source="createdDate" label="Ngày tạo" disabled fullWidth/>
-                        </Grid>
-
-                        <Grid item xs={12} sm={6}>
-                            <TextInput source="createdBy.username" label="Người tạo" disabled fullWidth/>
-                        </Grid>
-
-                        <Grid item xs={12} sm={6}>
-                            <DateInput source="updatedDate" label="Ngày cập nhật" disabled fullWidth/>
-                        </Grid>
-
-                        <Grid item xs={12} sm={6}>
-                            <TextInput source="updatedBy.username" label="Người cập nhật" disabled fullWidth/>
-                        </Grid>
 
                     </Grid>
                 </TabbedForm.Tab>
@@ -100,9 +84,9 @@ const PromotionEdit = () => {
                 </TabbedForm.Tab>
 
             </TabbedForm>
-        </Edit>
+        </Create>
     )
 };
 
-export default PromotionEdit;
+export default PromotionCreate;
 

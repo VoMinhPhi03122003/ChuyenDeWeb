@@ -22,12 +22,14 @@ import {BlogEdit} from "./blogs/BlogEdit";
 import {BlogCreate} from "./blogs/BlogCreate";
 import ImportInvoiceList from "./importInvoices/ImportInvoiceList";
 import ImportInvoiceCreate from "./importInvoices/ImportInvoiceCreate";
+import DiscountRoundedIcon from '@mui/icons-material/DiscountRounded';
 import ProductShow from "./products/ProductShow";
 import OrderList from "./orders/OrderList";
 import OrderEdit from "./orders/OrderEdit";
 import OrderCreate from "./orders/OrderCreate";
 import PromotionList from "./promotion/PromotionList";
 import PromotionEdit from "./promotion/PromotionEdit";
+import PromotionCreate from "./promotion/PromotionCreate";
 
 const App = () => {
     return (
@@ -58,7 +60,8 @@ const App = () => {
             <Resource name="promotion"
                       list={PromotionList}
                       edit={PromotionEdit}
-                      icon={ProductIcon}
+                      create={PromotionCreate}
+                      icon={DiscountRoundedIcon}
                       recordRepresentation={(promotion) => promotion.name}
                       options={{label: "Khuyến mãi"}}
             />
