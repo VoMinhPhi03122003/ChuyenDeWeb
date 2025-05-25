@@ -21,6 +21,8 @@ import {BlogEdit} from "./blogs/BlogEdit";
 import {BlogCreate} from "./blogs/BlogCreate";
 import ImportInvoiceList from "./importInvoices/ImportInvoiceList";
 import ImportInvoiceCreate from "./importInvoices/ImportInvoiceCreate";
+import ProductShow from "./products/ProductShow";
+import OrderList from "./orders/OrderList";
 
 const App = () => {
     return (
@@ -43,6 +45,7 @@ const App = () => {
                       list={ProductList}
                       edit={ProductEdit}
                       create={ProductCreate}
+                      show={ProductShow}
                       icon={ProductIcon}
                       recordRepresentation={(product) => product.name}
                       options={{label: "Sản Phẩm"}}
@@ -52,6 +55,12 @@ const App = () => {
                       create={ImportInvoiceCreate}
                       icon={ArrowDownwardRoundedIcon}
                       options={{label: "Nhập hàng"}}
+            />
+            <Resource name={"order"}
+                      list={OrderList}
+                      icon={ArrowDownwardRoundedIcon}
+                      options={{label: "Đơn hàng"}}
+                      
             />
             <Resource name="category"
                       list={CategoryList}

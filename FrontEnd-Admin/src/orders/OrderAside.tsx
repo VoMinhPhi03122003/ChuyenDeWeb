@@ -14,7 +14,7 @@ import CategoryIcon from '@mui/icons-material/CategoryRounded';
 import AttachMoneyRoundedIcon from '@mui/icons-material/AttachMoneyRounded';
 
 
-const Aside = () => {
+const OrderAside = () => {
     const {data} = useGetList<Category>('category', {
         pagination: {page: 1, perPage: 100},
         sort: {field: 'name', order: 'ASC'},
@@ -103,4 +103,4 @@ const Aside = () => {
         </Card>
     );
 };
-export default Aside;
+export default OrderAside;

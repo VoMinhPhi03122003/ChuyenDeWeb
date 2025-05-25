@@ -1,7 +1,6 @@
 package vn.edu.hcmuaf.cdw.ShopThoiTrang.service;
 
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import vn.edu.hcmuaf.cdw.ShopThoiTrang.entity.Product;
 
@@ -19,7 +18,7 @@ public interface ProductService {
 
     void deleteProduct(Long id);
 
-    Product saveProduct(Product product, HttpServletRequest request);
+    Product saveProduct(Product product);
 
     Product updateProduct(long id,Product product);
 }

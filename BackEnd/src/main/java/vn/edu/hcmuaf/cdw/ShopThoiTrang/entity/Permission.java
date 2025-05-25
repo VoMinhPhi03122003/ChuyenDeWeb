@@ -10,15 +10,11 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@EqualsAndHashCode
-public class Permission{
+public class Permission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @EqualsAndHashCode.Include
     private long id;
     @Column(name = "name")
-    @EqualsAndHashCode.Include
     private String name;
-
 
 }

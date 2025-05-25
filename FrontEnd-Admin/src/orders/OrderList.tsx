@@ -20,8 +20,8 @@ import {
 } from "react-admin";
 import {Theme, useMediaQuery} from "@mui/material";
 import MobileGrid from "../users/MobileGrid";
-import Aside from "./Aside";
 import {Category} from "../types";
+import OrderAside from "./OrderAside";
 
 const visitorFilters = [
     <SearchInput alwaysOn name={"search"} source={"filter"}/>,
@@ -36,7 +36,7 @@ const VisitorListActions = () => (
     </TopToolbar>
 );
 
-export const ProductList = () => {
+export const OrderList = () => {
     const isXsmall = useMediaQuery<Theme>(theme =>
         theme.breakpoints.down('sm')
     );
@@ -50,7 +50,7 @@ export const ProductList = () => {
             filters={isSmall ? visitorFilters : undefined}
             sort={{field: 'name', order: 'DESC'}}
             perPage={25}
-            aside={<Aside/>}
+            aside={<OrderAside/>}
             actions={<VisitorListActions/>}
         >
             {isXsmall ? (
@@ -58,34 +58,18 @@ export const ProductList = () => {
             ) : (
                 <DatagridConfigurable
                     rowClick="show"
-                    bulkActionButtons={
-                        <>
-                            <BulkUpdateButton data={{stock: 100}} label="Refill stock"/>
-                            <BulkDeleteButton/>
-                        </>
-                    }
+                    // bulkActionButtons={
+                    //     <>
+                    //         <BulkUpdateButton data={{stock: 100}} label="Refill stock"/>
+                    //         <BulkDeleteButton/>
+                    //     </>
+                    // }
                 >
                     <NumberField source="id" label="ID"/>
-                    <ImageField sx={{m: "auto"}} className={"cent"} source="imageUrl" label="Ảnh"/>
-                    <TextField source="name" label="Tên SP"/>
-                    <TextField source="description" label="Mô tả"/>
-                    <FunctionField
-                        source="categories"
-                        label="Danh mục"
-                        render={(record: any) => (
-                            record.categories.map((category: any) => (
-                                <ChipField record={category} source="name" key={category.id}/>
-                            ))
-                        )}
-                    />
-
-                    <NumberField
-                        source="price.price"
-                        options={{
-                            style: "currency",
-                            currency: "VND",
-                        }}
-                        label="Giá"
+                    <TextField source="name" label="Tên"/>
+                    <NumberField source="totalAmount" label="Tổng tiền"/>
+                    <TextField
+                        source={"user.userInfo.fullName"}
                     />
                     <EditButton/>
                 </DatagridConfigurable>
@@ -94,4 +78,4 @@ export const ProductList = () => {
     )
 };
 
-export default ProductList;
+export default OrderList;
