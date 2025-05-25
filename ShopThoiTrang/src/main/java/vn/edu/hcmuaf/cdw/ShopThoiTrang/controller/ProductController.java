@@ -32,6 +32,12 @@ public class ProductController {
         Page<Product> products = productService.getAllProducts(filter, page, perPage, sort, order);
         return ResponseEntity.ok(products);
     }
+    @PostMapping
+    public ResponseEntity<?> saveProduct(@RequestBody Product product) {
+
+        return ResponseEntity.ok(productService.saveProduct(product));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
