@@ -10,106 +10,38 @@ import {
     AutocompleteInput,
     ArrayInput,
     SimpleFormIterator,
-    Toolbar, SaveButton,
+    required,
 } from 'react-admin';
 import {Box, Grid, Typography} from '@mui/material';
-import {useState} from "react";
 
-
-export const checkPassword = (password: string) => {
-    // Regex pattern kiểm tra password
-    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
-
-    return passwordPattern.test(password);
-}
-
-const validateForm = (values: Record<any, any>): Record<any, any> => {
+export const validateForm = (
+    values: Record<string, any>
+): Record<string, any> => {
     const errors = {} as any;
+    if (!values.fullName) {
+        errors.fullName = 'ra.validation.required';
+    }
     if (!values.username) {
-        errors.username = 'username is required';
+        errors.fullName = 'ra.validation.required';
     }
-    if (!values.userInfo.fullName) {
-        errors.userInfo = {...errors.userInfo, fullName: 'fullName is required'}
-    }
-    if (!values.userInfo.email) {
-        errors.userInfo = {...errors.userInfo, email: 'email is required'};
+    if (!values.email) {
+        errors.email = 'ra.validation.required';
     } else {
-        const error: any = email()(values.userInfo.email);
+        const error = email()(values.email);
         if (error) {
-            errors.userInfo = {email: error.message};
+            errors.email = error;
         }
     }
-    if (values.password && values.confirm_password && values.password !== values.confirm_password) {
-        errors.password = 'password and confirm_password do not match';
+    if (values.password && values.password !== values.confirm_password) {
         errors.confirm_password =
-            'password and confirm_password do not match';
-    }
-    if (!checkPassword(values.password) || !checkPassword(values.confirm_password)) {
-        errors.password = 'password must be at least 8 characters, including uppercase, lowercase, and number';
-        errors.confirm_password = 'password must be at least 8 characters, including uppercase, lowercase, and number';
-    }
-    if (!values.role.id) {
-        errors.role = {id: 'required a role'};
-    }
-    if (values.role && values.role.id !== 1) {
-        if (values.resourceVariations === null || values.resourceVariations === undefined || values.resourceVariations.length === 0) {
-            errors.resourceVariations = 'required at least one resource and one permission for that resource';
-        } else {
-            let resourceIds = new Set();
-            values.resourceVariations.forEach((item: any) => {
-                let permissionIds = new Set();
-                if (item.resource.id === undefined || item.resource.id === null || resourceIds.has(item.resource.id)) {
-                    errors.resourceVariations = 'resources cannot be duplicated or empty';
-                } else
-                    resourceIds.add(item.resource.id)
-                item.permissions.forEach((itemPer: any) => {
-                    if (itemPer.id === undefined || itemPer.id === null || permissionIds.has(itemPer.id)) {
-                        errors.resourceVariations = 'permissions cannot be duplicated or empty';
-                    } else
-                        permissionIds.add(itemPer.id)
-                });
-            })
-        }
+            'passwords do not match';
     }
     return errors;
-}
+};
 
-const UserCreate = () => {
-
-    const [admin, setAdmin] = useState(true)
-
-    const handleRoleChange = (e: any) => {
-        if (e === 1) {
-            setAdmin(false)
-        } else
-            setAdmin(true)
-    }
-
-    return <Create title={"Create User"}>
-        <TabbedForm validate={validateForm} defaultValues={{
-            address: undefined,
-            confirm_password: undefined,
-            district: undefined,
-            enabled: true,
-            password: undefined,
-            province: undefined,
-            resourceVariations: [],
-            role: {
-                id: undefined
-            },
-            userInfo: {
-                fullName: undefined,
-                email: undefined,
-                phone: undefined
-            },
-            username: undefined,
-            ward: undefined
-        }} toolbar={<Toolbar>
-            <SaveButton
-                label="Create"
-                alwaysEnable
-            />
-        </Toolbar>}>
+const UserCreate = () => (
+    <Create title={"Create User"}>
+        <TabbedForm>
             <TabbedForm.Tab
                 label="Thông tin"
                 sx={{maxWidth: '40em'}}
@@ -125,12 +57,14 @@ const UserCreate = () => {
                                     <TextInput
                                         source="userInfo.fullName"
                                         label={"Họ và tên"}
+                                        validate={req}
                                         fullWidth
                                     />
                                 </Box>
                                 <Box flex={1} mr={{xs: 0, sm: '0.5em'}}>
                                     <TextInput
                                         source="username"
+                                        validate={req}
                                         fullWidth
                                         label={"Tên đăng nhập"}
                                     />
@@ -140,6 +74,7 @@ const UserCreate = () => {
                                 type="email"
                                 source="userInfo.email"
                                 label={"Email"}
+                                validate={req}
                                 fullWidth
                             />
                             <TextInput
@@ -193,12 +128,14 @@ const UserCreate = () => {
                                     <PasswordInput
                                         source="password"
                                         fullWidth
+                                        validate={req}
                                     />
                                 </Box>
                                 <Box flex={1} ml={{xs: 0, sm: '0.5em'}}>
                                     <PasswordInput
                                         source="confirm_password"
                                         fullWidth
+                                        validate={req}
                                     />
                                 </Box>
                             </Box>
@@ -215,7 +152,7 @@ const UserCreate = () => {
                             />
                             <ReferenceInput label="Tài nguyên" source="role.id" reference="role">
                                 <AutocompleteInput label={"Loại tài khoản"} optionText={"name"} optionValue={"id"}
-                                                   onChange={handleRoleChange}/>
+                                                   validate={req}/>
                             </ReferenceInput>
                         </Grid>
                     </Grid>
@@ -226,25 +163,24 @@ const UserCreate = () => {
                 sx={{maxWidth: '40em'}}
                 path="role"
             >
-                {admin ? <ArrayInput source={`resourceVariations`} label={`Phân Quyền`} fullWidth>
+                <ArrayInput source={`resourceVariations`} label={`Phân Quyền`} fullWidth>
                     <SimpleFormIterator inline>
                         <ReferenceInput label="Tài nguyên" source="resource.id" reference="resource">
-                            <AutocompleteInput label={"Tài nguyên"} optionText={"name"} optionValue={"id"}
-                                               isRequired={true}/>
+                            <AutocompleteInput label={"Tài nguyên"} optionText={"name"} optionValue={"id"}/>
                         </ReferenceInput>
                         <ArrayInput sx={{marginLeft: 10}} source={`permissions`} label={`Quyền`}>
                             <SimpleFormIterator inline>
                                 <ReferenceInput label="Quyền" source="id" reference="permission">
-                                    <AutocompleteInput label={"Quyền"} optionText={"name"} optionValue={"id"}
-                                                       isRequired={true}/>
+                                    <AutocompleteInput label={"Quyền"} optionText={"name"} optionValue={"id"}/>
                                 </ReferenceInput>
                             </SimpleFormIterator>
                         </ArrayInput>
                     </SimpleFormIterator>
-                </ArrayInput> : <></>}
+                </ArrayInput>
             </TabbedForm.Tab>
         </TabbedForm>
     </Create>
-}
+);
 
+const req = [required()];
 export default UserCreate;

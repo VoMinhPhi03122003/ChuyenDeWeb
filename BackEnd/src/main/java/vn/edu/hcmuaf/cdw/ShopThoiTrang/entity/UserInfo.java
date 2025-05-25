@@ -1,7 +1,6 @@
 package vn.edu.hcmuaf.cdw.ShopThoiTrang.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,8 +10,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = "user")
-
+@ToString
 public class UserInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,7 +28,7 @@ public class UserInfo {
 
     @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "id")
     private User user;
 
 }

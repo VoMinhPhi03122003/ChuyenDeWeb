@@ -13,7 +13,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"user"})
+@ToString
 public class ResourceVariation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

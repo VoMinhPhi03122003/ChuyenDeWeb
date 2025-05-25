@@ -21,8 +21,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"userInfo"})
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@ToString
 public class User implements UserDetails {
 
     @Id
@@ -42,8 +41,10 @@ public class User implements UserDetails {
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private UserInfo userInfo;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Order> orders;
+
 
     @ManyToOne
     @JoinTable(
