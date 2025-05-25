@@ -18,11 +18,11 @@ public class Category {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
     private String name;
 
     @Column(name = "parent_id")
-    private long parentId;
+    private Long parentId;
     private boolean status;
 
     @Column(name = "released_date")

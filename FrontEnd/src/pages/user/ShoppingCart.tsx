@@ -1,4 +1,3 @@
-
 import React, {Fragment, useState} from "react";
 import {Link} from "react-router-dom";
 import {useToasts} from "react-toast-notifications";
@@ -73,6 +72,7 @@ const ShoppingCart = ({
                                                                          alt=""/>
                                                                 </Link>
                                                             </td>
+
                                                             <td className="product-name">
                                                                 <Link
                                                                     to={"/product/" + cartItem.id}>
@@ -82,13 +82,14 @@ const ShoppingCart = ({
                                                                 cartItem.selectedProductSize ? (
                                                                     <div className="cart-item-variation">
                                                                     <span>
-                                      Color: {cartItem.selectedProductColor}
+                                                                    Color: {cartItem.selectedProductColor}
                                                                     </span>
                                                                         <span>
                                                                         Size: {cartItem.selectedProductSize}
                                                                     </span>
                                                                     </div>) : ("")}
                                                             </td>
+
                                                             <td className="product-price-cart">
                                                                 {discountedPrice !== null ? (
                                                                     <Fragment>
@@ -100,7 +101,7 @@ const ShoppingCart = ({
                                                                     </span>
                                                                     </Fragment>) : (
                                                                     <span className="amount">
-                                            {"đ" + finalProductPrice}
+                                                                    {"đ" + finalProductPrice}
                                                                 </span>)}
                                                             </td>
 
@@ -178,8 +179,6 @@ const ShoppingCart = ({
                             </div>
 
                             <div className="row">
-
-
                                 <div className="col-lg-6 col-md-6">
                                     <div className="discount-code-wrapper">
                                         <div className="title-wrap">
@@ -209,15 +208,15 @@ const ShoppingCart = ({
                                         <h5>
                                             Tạm tính{" "}
                                             <span>
-                          {"đ" + cartTotalPrice.toFixed(2)}
-                        </span>
+                                                {"đ" + cartTotalPrice.toFixed(2)}
+                                            </span>
                                         </h5>
 
                                         <h4 className="grand-totall-title">
                                             Tổng tiền{" "}
                                             <span>
-                          {"đ" + cartTotalPrice.toFixed(2)}
-                        </span>
+                                                {"đ" + cartTotalPrice.toFixed(2)}
+                                            </span>
                                         </h4>
                                         <Link to={"/checkout"}>
                                             Thanh toán
@@ -249,15 +248,13 @@ const ShoppingCart = ({
     );
 };
 
-
-
-const mapStateToProps = (state : any) => {
+const mapStateToProps = (state: any) => {
     return {
         cartItems: state.cartData
     };
 };
 
-const mapDispatchToProps = (dispatch : any) => {
+const mapDispatchToProps = (dispatch: any) => {
     return {
         addToCart: (item: any, addToast: any, quantityCount: any) => {
             dispatch(addToCart(item, addToast, quantityCount, item.selectedProductColor, item.selectedProductSize));

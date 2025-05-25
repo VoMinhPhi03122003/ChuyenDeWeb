@@ -13,7 +13,7 @@ public class TestController {
     UserInfoRepository userInfoRepository;
     @GetMapping("/all")
     public String allAccess() {
-        return " This is Public Content.";
+        return "This is Public Content.";
     }
 
     @GetMapping("/user")

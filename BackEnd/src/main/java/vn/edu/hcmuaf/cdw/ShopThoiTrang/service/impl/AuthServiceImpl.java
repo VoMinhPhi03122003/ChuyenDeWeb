@@ -111,7 +111,6 @@ public class AuthServiceImpl implements AuthService {
 
         ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
 
-
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, jwtRefreshCookie.toString()).body(new JwtResponse(
                         userDetails.getId(),
@@ -123,7 +122,6 @@ public class AuthServiceImpl implements AuthService {
     public ResponseEntity<?> refreshToken(HttpServletRequest request) {
 
         String refreshToken = jwtUtils.getJwtRefreshFromCookies(request);
-
         if ((refreshToken != null) && (!refreshToken.isEmpty())) {
             return refreshTokenService.findByToken(refreshToken)
                     .map(refreshTokenService::verifyExpiration)

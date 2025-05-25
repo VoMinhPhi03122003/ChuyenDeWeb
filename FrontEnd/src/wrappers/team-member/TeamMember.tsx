@@ -46,33 +46,33 @@ const TeamMember = ({spaceTopClass, spaceBottomClass}: any) => {
     return (
         <div
             className={`team-area ${spaceTopClass ? spaceTopClass : ""} ${
-            spaceBottomClass ? spaceBottomClass : ""
-        }`}
->
-    <div className="container">
+                spaceBottomClass ? spaceBottomClass : ""
+            }`}
+        >
+            <div className="container">
 
-    <TeamMemberSectionTitle
-        titleText="Team Members"
-    subTitleText="Lorem ipsum dolor sit amet conse ctetu."
-    positionClass="text-center"
-    spaceClass="mb-60"
-    />
+                <TeamMemberSectionTitle
+                    titleText="Team Members"
+                    subTitleText="Lorem ipsum dolor sit amet conse ctetu."
+                    positionClass="text-center"
+                    spaceClass="mb-60"
+                />
 
-    <div className="row">
-        {teamMemberData &&
-        teamMemberData.map((single, key) => {
-            return (
-                <TeamMemberItem
-                    data={single}
-            spaceBottomClass="mb-30"
-            key={key}
-            />
-        );
-        })}
-    </div>
-    </div>
-    </div>
-);
+                <div className="row">
+                    {teamMemberData &&
+                        teamMemberData.map((single, key) => {
+                            return (
+                                <TeamMemberItem
+                                    data={single}
+                                    spaceBottomClass="mb-30"
+                                    key={key}
+                                />
+                            );
+                        })}
+                </div>
+            </div>
+        </div>
+    );
 };
 
 export default TeamMember;

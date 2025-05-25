@@ -17,7 +17,6 @@ import vn.edu.hcmuaf.cdw.ShopThoiTrang.entity.*;
 import vn.edu.hcmuaf.cdw.ShopThoiTrang.reponsitory.*;
 import vn.edu.hcmuaf.cdw.ShopThoiTrang.service.ProductService;
 
-
 import javax.swing.text.html.HTMLDocument;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
@@ -64,6 +63,7 @@ public class ProductServiceImpl implements ProductService {
     public Product getProductById(Long id) {
         return productRepository.findById(id).orElse(null);
     }
+
     @Override
     public Page<Product> getAllProducts(String filter, int page, int perPage, String sortBy, String order) {
         Sort.Direction direction = Sort.Direction.ASC;
@@ -107,10 +107,12 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, sortBy)));
 
     }
+
     @Override
     public void deleteProduct(Long id) {
         productRepository.deleteById(id);
     }
+
     @Override
     @Transactional
     public Product saveProduct(Product product) {
@@ -120,6 +122,7 @@ public class ProductServiceImpl implements ProductService {
         Price price = product.getPrice();
         price.setProduct(product);
         priceRepository.save(price);
+
 
         // save variations
         List<Variation> viariations = new ArrayList<>();
@@ -173,14 +176,12 @@ public class ProductServiceImpl implements ProductService {
 
         return productRepository.save(product);
 
-
     }
 
     @Override
     @Transactional
     public Product updateProduct(long productId, Product productUpdate) {
         Date currentDate = new Date(System.currentTimeMillis());
-
 
         Product existingProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("Product not found with id: " + productId));
@@ -237,6 +238,8 @@ public class ProductServiceImpl implements ProductService {
                     variationRepository.save(variation);
                     viariations.add(variation);
                 }
+
+
                 productUpdate.setUpdateDate(currentDate);
                 productUpdate.setReleaseDate(currentDate);
                 productUpdate.setReleaseBy(productUpdate.getReleaseBy());
@@ -244,17 +247,12 @@ public class ProductServiceImpl implements ProductService {
                 productUpdate.setVariations(viariations);
                 updatedVariations.add(updatedVariation);
             }
-
-
         }
-
 
         // Xóa các biến thể không còn tồn tại
         List<Long> updatedVariationIds = updatedVariations.stream()
                 .map(Variation::getId)
                 .toList();
-
-
 
         List<Variation> variationsToDelete = new ArrayList<>();
         for (Variation variation : existingProduct.getVariations()) {
@@ -272,7 +270,8 @@ public class ProductServiceImpl implements ProductService {
         existingProduct.setVariations(updatedVariations);
         System.out.println("Category: " + productUpdate.getCategories());
         System.out.println("Category2: " + existingProduct.getCategories());
-        return productRepository.save(existingProduct);  }
+        return productRepository.save(existingProduct);
+    }
 
     private void updateSizes(Variation existingVariation, List<Size> updatedSizes) {
         Date currentDate = new Date(System.currentTimeMillis());
@@ -301,12 +300,12 @@ public class ProductServiceImpl implements ProductService {
 
                 existingVariation.getSizes().add(updatedSize);
             }
-
         }
         // Xóa các kích thước không còn tồn tại
         List<Long> updatedSizeIds = updatedSizes.stream()
                 .map(Size::getId)
                 .toList();
+
         List<Size> sizesToDelete = new ArrayList<>();
 
         for (Size size : existingVariation.getSizes()) {
@@ -321,7 +320,7 @@ public class ProductServiceImpl implements ProductService {
         }
 
         variationRepository.save(existingVariation); // Lưu biến thể đã cập nhật
-
-
     }
-        }
+}
+
+

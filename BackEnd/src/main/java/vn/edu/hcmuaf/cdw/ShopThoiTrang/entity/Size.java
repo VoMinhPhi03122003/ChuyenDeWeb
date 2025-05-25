@@ -1,5 +1,6 @@
 package vn.edu.hcmuaf.cdw.ShopThoiTrang.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -41,4 +42,8 @@ public class Size {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "variation_id")
     private Variation variation;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "size", fetch = FetchType.EAGER , cascade = CascadeType.ALL)
+    private List<ImportInvoice> importInvoices;
 }

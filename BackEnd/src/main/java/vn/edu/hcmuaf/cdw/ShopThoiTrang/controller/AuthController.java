@@ -17,10 +17,8 @@ import vn.edu.hcmuaf.cdw.ShopThoiTrang.service.AuthService;
 @RequestMapping("/api/auth")
 @Transactional
 public class AuthController {
-
     @Autowired
     private JwtUtils jwtUtils;
-
     @Autowired
     private AuthService authService;
 
@@ -34,6 +32,7 @@ public class AuthController {
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginDto loginRequest) {
         return authService.login(loginRequest);
     }
+
     @PostMapping("/login-admin")
     public ResponseEntity<?> authenticateAdmin(@Valid @RequestBody LoginDto loginRequest) {
         return authService.login_admin(loginRequest);

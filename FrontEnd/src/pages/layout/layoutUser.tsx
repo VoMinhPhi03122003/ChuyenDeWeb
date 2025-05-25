@@ -1,4 +1,3 @@
-
 import React, {Fragment} from "react";
 import Header from "../../wrappers/header/Header";
 import Footer from "../../wrappers/footer/Footer";
@@ -12,6 +11,7 @@ const LayoutUser = ({
                         headerPaddingClass,
                         headerPositionClass
                     }: any) => {
+
     const location = useLocation();
     const given = [
         {
@@ -57,6 +57,7 @@ const LayoutUser = ({
         }
 
     ]
+
     return (
         <Fragment>
             <Header
@@ -84,7 +85,5 @@ const LayoutUser = ({
         </Fragment>
     );
 };
-
-
 
 export default LayoutUser;

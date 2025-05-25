@@ -1,4 +1,6 @@
 package vn.edu.hcmuaf.cdw.ShopThoiTrang.entity;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -23,7 +25,6 @@ public class Product {
     private String content;
     private boolean status;
 
-
     @Column(name = "img_url")
     private String imageUrl;
 
@@ -46,6 +47,7 @@ public class Product {
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "product")
     private Price price;
 
+
     @ManyToMany (fetch = FetchType.LAZY)
     @JoinTable(name = "product_categories",
             joinColumns = @JoinColumn(name = "product_id"),
@@ -57,10 +59,17 @@ public class Product {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<ImageProduct> imgProducts;
+
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "product_promotion",
             joinColumns = @JoinColumn(name = "product_id"),
             inverseJoinColumns = @JoinColumn(name = "promotion_id"))
     private List<Promotion> promotions;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER )
+    private List<ImportInvoice> importInvoices;
+
+
 
 }

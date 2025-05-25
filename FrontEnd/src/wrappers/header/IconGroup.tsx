@@ -12,6 +12,7 @@ const IconGroup = ({
                        deleteFromCart,
                        iconWhiteClass
                    }: any) => {
+
     const [user, setUser]: any = useState(false);
     useEffect(() => {
         if (localStorage.getItem("user") !== null && localStorage.getItem("user") !== "") {
@@ -146,3 +147,4 @@ const mapDispatchToProps = (dispatch: any) => {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(IconGroup);
+

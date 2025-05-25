@@ -7,7 +7,6 @@ import Breadcrumb from "../../wrappers/breadcrumb/Breadcrumb";
 
 const About = () => {
 
-
     return (
         <Fragment>
             <Breadcrumb/>
@@ -30,5 +29,6 @@ const About = () => {
         </Fragment>
     );
 };
+
 
 export default About;

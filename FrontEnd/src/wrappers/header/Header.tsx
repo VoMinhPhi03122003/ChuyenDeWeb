@@ -14,6 +14,7 @@ const Header = ({
     const [scroll, setScroll] = useState(0);
     const [headerTop, setHeaderTop] = useState(0);
 
+
     useEffect(() => {
         const header: any = document.querySelector(".sticky-bar");
         setHeaderTop(header.offsetTop);
@@ -22,6 +23,7 @@ const Header = ({
             window.removeEventListener("scroll", handleScroll);
         };
     }, []);
+
 
     const handleScroll = () => {
         setScroll(window.scrollY);

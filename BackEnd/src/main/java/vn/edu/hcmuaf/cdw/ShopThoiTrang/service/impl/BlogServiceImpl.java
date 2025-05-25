@@ -17,6 +17,7 @@ import vn.edu.hcmuaf.cdw.ShopThoiTrang.service.BlogService;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
+
 import org.springframework.data.jpa.domain.Specification;
 
 
@@ -63,6 +64,7 @@ public class BlogServiceImpl implements BlogService {
     public Blog getBlogById(Long id) {
         return blogRepository.findById(id).orElse(null);
     }
+
     @Override
     public Blog saveBlog(Blog blog) {
         Date date = new Date(System.currentTimeMillis());

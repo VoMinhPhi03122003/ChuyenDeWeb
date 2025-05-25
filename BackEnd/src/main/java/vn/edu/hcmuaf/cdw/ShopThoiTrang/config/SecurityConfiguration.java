@@ -22,6 +22,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import vn.edu.hcmuaf.cdw.ShopThoiTrang.JWT.AuthEntryPointJwt;
 import vn.edu.hcmuaf.cdw.ShopThoiTrang.filters.AuthTokenFilter;
 import vn.edu.hcmuaf.cdw.ShopThoiTrang.service.impl.UserDetailsServiceImpl;
+
 import java.util.Arrays;
 
 @Configuration
@@ -62,9 +63,10 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.cors();
-        http.csrf(AbstractHttpConfigurer::disable)
 
+        http.cors();
+
+        http.csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(unauthorizedHandler))
                 .authorizeHttpRequests(auth ->
@@ -74,14 +76,15 @@ public class SecurityConfiguration {
                                 .requestMatchers("/api/user/**").permitAll()
                                 .requestMatchers("/api/category/**").permitAll()
                                 .requestMatchers("/api/blog/**").permitAll()
+                                .requestMatchers("/api/import-invoice/**").permitAll()
                                 .anyRequest().authenticated()
                 );
 
         http.authenticationProvider(authenticationProvider());
-
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
+
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -94,5 +97,4 @@ public class SecurityConfiguration {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
 }

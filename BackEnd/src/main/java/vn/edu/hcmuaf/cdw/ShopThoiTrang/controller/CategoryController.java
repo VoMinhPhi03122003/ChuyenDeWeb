@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import vn.edu.hcmuaf.cdw.ShopThoiTrang.entity.Category;
 import vn.edu.hcmuaf.cdw.ShopThoiTrang.service.CategoryService;
 
-
 import java.util.List;
 
 @RestController
@@ -26,11 +25,13 @@ public class CategoryController {
         Page<Category> categories = categoryService.getAllCategories(filter, start, end, sort, order);
         return ResponseEntity.ok(categories);
     }
+
     @GetMapping("/ids")
     public ResponseEntity<List<Category>> getAllCategories( @RequestParam(defaultValue = "{}") String ids) {
         List<Category> categories = categoryService.getAllCategories(ids);
         return ResponseEntity.ok(categories);
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<Category> getCategoryById(@PathVariable Long id) {
         Category category = categoryService.getCategoryById(id);
@@ -48,5 +49,7 @@ public class CategoryController {
         Category updatedCategory = categoryService.updateCategory(id, category);
         return ResponseEntity.ok(updatedCategory);
     }
+
+
 
 }

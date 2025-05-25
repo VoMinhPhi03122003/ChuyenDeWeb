@@ -1,5 +1,4 @@
 import React, {Fragment} from "react";
-
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
 import {Link} from "react-router-dom";
@@ -79,6 +78,7 @@ const Checkout = ({cartItems}: any) => {
                                             </div>
                                         </div>
                                     </div>
+
                                     <div className="additional-info-wrap">
                                         <h4>Thông tin thêm</h4>
                                         <div className="additional-info">
@@ -168,7 +168,6 @@ const Checkout = ({cartItems}: any) => {
                                                     </li>
                                                 </ul>
                                             </div>
-
                                         </div>
                                         <div className="payment-method"></div>
                                     </div>

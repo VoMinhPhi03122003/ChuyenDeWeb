@@ -1,4 +1,3 @@
-
 package vn.edu.hcmuaf.cdw.ShopThoiTrang.entity;
 
 import jakarta.persistence.*;

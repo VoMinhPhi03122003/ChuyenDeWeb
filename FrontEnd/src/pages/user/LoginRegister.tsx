@@ -27,7 +27,6 @@ const LoginRegister = () => {
     if (user) return (<Navigate to="/"/>)
 
 
-
     return (
         <Fragment>
             <Breadcrumb/>

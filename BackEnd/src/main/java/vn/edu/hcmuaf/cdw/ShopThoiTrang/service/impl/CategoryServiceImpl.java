@@ -60,6 +60,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         return categoryRepository.findAll(specification, PageRequest.of(start, end, Sort.by(direction, sortBy)));
     }
+
     @Override
     public List<Category> getAllCategories(String ids) {
         JsonNode filterJson;
@@ -79,7 +80,6 @@ public class CategoryServiceImpl implements CategoryService {
 
         return null;
     }
-
 
     @Override
     public List<Category> getCategoriesStatusTrue() {

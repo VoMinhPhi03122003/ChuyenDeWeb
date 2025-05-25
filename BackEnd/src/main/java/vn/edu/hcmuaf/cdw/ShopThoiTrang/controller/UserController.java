@@ -9,6 +9,7 @@ import vn.edu.hcmuaf.cdw.ShopThoiTrang.JWT.JwtUtils;
 import vn.edu.hcmuaf.cdw.ShopThoiTrang.entity.User;
 import vn.edu.hcmuaf.cdw.ShopThoiTrang.service.UserInfoService;
 import vn.edu.hcmuaf.cdw.ShopThoiTrang.service.UserService;
+
 import java.io.UnsupportedEncodingException;
 
 @RestController
@@ -35,6 +36,7 @@ public class UserController {
         String username = jwtUtils.getUserNameFromJwtToken(jwt);
         return userInfoService.findById(userService.getUserByUsername(username).getId());
     }
+
     @GetMapping("/get-authorities")
     public ResponseEntity<?> getAuthorities() {
         String jwt = jwtUtils.getJwtFromCookies(request);
@@ -55,4 +57,5 @@ public class UserController {
         Page<User> users = userService.getAllUsers(filter, page, perPage, sort, order);
         return ResponseEntity.ok(users);
     }
+
 }

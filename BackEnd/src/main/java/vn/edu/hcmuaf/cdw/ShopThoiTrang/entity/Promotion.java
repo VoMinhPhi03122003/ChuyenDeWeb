@@ -50,7 +50,6 @@ public class Promotion {
     @JoinColumn(name = "updated_by", referencedColumnName = "id")
     private User updatedBy;
 
-
     @JsonBackReference
     @ManyToMany(mappedBy = "promotions", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Product> products;

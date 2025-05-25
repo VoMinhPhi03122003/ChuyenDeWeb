@@ -33,7 +33,6 @@ export const webRouter = createBrowserRouter([
             }, {
                 path: "shop",
                 element: <Shop/>,
-
             }, {
                 path: "post",
                 element: <Posts/>,

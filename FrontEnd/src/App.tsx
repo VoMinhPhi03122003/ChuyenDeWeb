@@ -7,7 +7,6 @@ import LayoutUser from "./pages/layout/layoutUser";
 
 function App() {
 
-
     return (
         <ToastProvider placement="bottom-left">
             <BreadcrumbsProvider>
@@ -21,7 +20,6 @@ function App() {
                 </div>
             </BreadcrumbsProvider>
         </ToastProvider>
-
     );
 }
 

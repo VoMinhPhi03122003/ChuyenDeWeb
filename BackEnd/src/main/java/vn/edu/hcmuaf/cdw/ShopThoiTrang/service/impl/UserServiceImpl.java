@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,12 +19,12 @@ import vn.edu.hcmuaf.cdw.ShopThoiTrang.entity.UserInfo;
 import vn.edu.hcmuaf.cdw.ShopThoiTrang.reponsitory.UserInfoRepository;
 import vn.edu.hcmuaf.cdw.ShopThoiTrang.reponsitory.UserRepository;
 import vn.edu.hcmuaf.cdw.ShopThoiTrang.service.UserService;
+
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
-
 
     @Autowired
     UserRepository userRepository;
@@ -37,10 +36,12 @@ public class UserServiceImpl implements UserService {
     public User getUserById(Long id) {
         return userRepository.getReferenceById(id);
     }
+
     @Override
     public User getUserByUsername(String username) {
         return userRepository.findByUsername(username).orElse(null);
     }
+
     @Override
     public ResponseEntity<?> getAuthorities(String username) {
         return ResponseEntity.ok(userRepository.findByUsername(username).get().getAuthorities().stream()
@@ -60,7 +61,6 @@ public class UserServiceImpl implements UserService {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-
         Specification<User> specification = (root, query, criteriaBuilder) -> {
             Predicate predicate = criteriaBuilder.conjunction();
 
@@ -74,6 +74,7 @@ public class UserServiceImpl implements UserService {
                 Join<User, UserInfo> userInfoJoin = root.join("userInfo");
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(criteriaBuilder.lower(userInfoJoin.get("fullName")), "%" + searchString.toLowerCase() + "%"));
             }
+
             if (filterJson.has("type")) {
                 String type = filterJson.get("type").asText();
                 Join<User, Role> roleJoin = root.join("roles");
@@ -82,6 +83,7 @@ public class UserServiceImpl implements UserService {
 
             return predicate;
         };
+
         if (sortBy.equals("username") || sortBy.equals("createdDate")) {
             return userRepository.findAll(specification, PageRequest.of(page, perPage, direction, sortBy));
         }
@@ -95,7 +97,5 @@ public class UserServiceImpl implements UserService {
 
         return userRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, sortBy)));
     }
-
-
 
 }

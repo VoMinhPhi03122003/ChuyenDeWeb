@@ -27,12 +27,14 @@ public class RefreshTokenService {
     public Optional<RefreshToken> findByToken(String token) {
         return refreshTokenRepository.findByToken(token);
     }
+
     public Optional<RefreshToken> findByUser(Long id) {
         return refreshTokenRepository.findByUser(userRepository.findById(id).orElse(null));
     }
 
 
     public RefreshToken createRefreshToken(Long userId) {
+
         RefreshToken refreshToken = findByUser(userId).orElse(null);
 
         if (refreshToken != null) {
@@ -43,7 +45,6 @@ public class RefreshTokenService {
             refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
             refreshToken.setToken(UUID.randomUUID().toString());
         }
-
         refreshToken = refreshTokenRepository.save(refreshToken);
         return refreshToken;
     }

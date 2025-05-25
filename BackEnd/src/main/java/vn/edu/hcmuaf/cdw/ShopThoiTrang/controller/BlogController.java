@@ -28,6 +28,7 @@ public class BlogController {
     public ResponseEntity<?> getBlogById(@PathVariable Long id) {
         return ResponseEntity.ok(blogService.getBlogById(id));
     }
+
     @PostMapping
     public ResponseEntity<?> saveBlog(@RequestBody Blog blog) {
         return ResponseEntity.ok(blogService.saveBlog(blog));
@@ -37,6 +38,5 @@ public class BlogController {
     public ResponseEntity<?> updateBlog(@PathVariable Long id, @RequestBody Blog blog) {
         return ResponseEntity.ok(blogService.updateBlog(id, blog));
     }
-
 
 }

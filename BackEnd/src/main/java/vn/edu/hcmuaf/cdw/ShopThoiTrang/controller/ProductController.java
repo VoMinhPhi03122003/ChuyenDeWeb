@@ -23,6 +23,7 @@ public class ProductController {
     public ResponseEntity<?> getProductById(@PathVariable Long id) {
         return ResponseEntity.ok(productService.getProductById(id));
     }
+
     @GetMapping
     public ResponseEntity<Page<Product>> getAllProducts(@RequestParam(defaultValue = "0") int page,
                                                         @RequestParam(defaultValue = "{}") String filter,
@@ -32,15 +33,18 @@ public class ProductController {
         Page<Product> products = productService.getAllProducts(filter, page, perPage, sort, order);
         return ResponseEntity.ok(products);
     }
+
     @PostMapping
     public ResponseEntity<?> saveProduct(@RequestBody Product product) {
 
         return ResponseEntity.ok(productService.saveProduct(product));
     }
+
     @PutMapping("/{id}")
     public ResponseEntity<?> updateProduct(@PathVariable Long id, @RequestBody Product product) {
         return ResponseEntity.ok(productService.updateProduct(id, product));
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
