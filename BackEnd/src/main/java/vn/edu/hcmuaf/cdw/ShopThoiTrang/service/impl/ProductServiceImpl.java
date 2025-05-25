@@ -74,22 +74,18 @@ public class ProductServiceImpl implements ProductService {
         }
         Specification<Product> specification = (root, query, criteriaBuilder) -> {
             Predicate predicate = criteriaBuilder.conjunction();
-            if (filterJson.has("q")) {
-
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("name"), "%" + filterJson.get("q").asText().toLowerCase() + "%"));
+            if (filterJson.has("name")) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("name"), "%" + filterJson.get("name").asText() + "%"));
             }
-            if (filterJson.has("price_lt") || filterJson.has("price_gt")) {
-                double priceLt = filterJson.has("price_lt") ? filterJson.get("price_lt").asDouble() : Double.MAX_VALUE;
-                double priceGt = filterJson.has("price_gt") ? filterJson.get("price_gt").asDouble() : 0;
+            if (filterJson.has("price")) {
                 Join<Product, Price> priceJoin = root.join("price");
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.between(priceJoin.get("price"), priceGt, priceLt));
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("price"), filterJson.get("price").asDouble()));
             }
             if (filterJson.has("status")) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("status"), filterJson.get("status").asBoolean()));
             }
             if (filterJson.has("categoryId")) {
-                Join<Product, Category> categoryJoin = root.join("categories");
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(categoryJoin.get("id"), filterJson.get("categoryId").asLong()));
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("category").get("id"), filterJson.get("categoryId").asLong()));
             }
             return predicate;
         };

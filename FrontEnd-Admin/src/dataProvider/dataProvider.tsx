@@ -1,8 +1,20 @@
 import {DataProvider, fetchUtils} from 'react-admin';
 import {authProvider} from "../authProvider";
-import {json} from "node:stream/consumers";
+import {imgProvider} from "../imgProvider/imgProvider";
+
 
 const httpClient = fetchUtils.fetchJson;
+
+async function getBase64(file: any) {
+    return new Promise((resolve, reject) => {
+        const reader: any = new FileReader()
+        reader.readAsDataURL(file)
+        reader.onload = () => {
+            resolve(reader.result.split(',')[1])
+        }
+        reader.onerror = reject
+    })
+}
 
 
 export const dataProvider: DataProvider = {
@@ -66,10 +78,10 @@ export const dataProvider: DataProvider = {
             credentials: 'include',
         }).then(({json}) => {
             return ({
-                data: resource == 'product' ? {
+                data: resource === 'product' ? {
                     ...json,
                     categoriesIds: json.categories.map((cat: any) => cat.id)
-                } : resource == 'user' ? {
+                } : resource === 'user' ? {
                     ...json
                 } : json
             })
@@ -103,10 +115,12 @@ export const dataProvider: DataProvider = {
     getManyReference: (resource: any, params: any) => Promise.resolve({data: []}),
     // @ts-ignore
     create: async (resource: any, params: any) => {
-        console.log(params)
         try {
-
+            let avtUrl = null;
             let categories = null;
+            let role = null;
+            let resourceUser: any = null;
+            let permissions: any = null;
             if (resource === 'product') {
                 const query = {
                     ids: JSON.stringify({ids: params.data.categories}),
@@ -121,11 +135,69 @@ export const dataProvider: DataProvider = {
                     credentials: 'include'
                 })
                 categories = json;
+            } else if (resource === 'user') {
+                const query = {
+                    ids: JSON.stringify({ids: params.data.role}),
+                };
+                const {json} = await httpClient(`${process.env.REACT_APP_API_URL}/role/ids?${fetchUtils.queryParameters(query)}`, {
+                    method: 'GET',
+
+                    headers: new Headers({
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                    }),
+                    credentials: 'include'
+                })
+                const query1 = {
+                    ids: JSON.stringify({ids: params.data.resourceVariations.map((item: any) => item.resource.id)}),
+                };
+                const json2 = await httpClient(`${process.env.REACT_APP_API_URL}/resource/ids?${fetchUtils.queryParameters(query1)}`, {
+                    method: 'GET',
+                    headers: new Headers({
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                    }),
+                    credentials: 'include'
+                })
+                const json3: any = await httpClient(`${process.env.REACT_APP_API_URL}/permission`, {
+                    method: 'GET',
+                    headers: new Headers({
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                    }),
+                    credentials: 'include'
+                })
+                if (params.data.userInfo.avt !== undefined && params.data.userInfo.avt !== null) {
+                    let selectedImg = null;
+                    await getBase64(params.data.userInfo.avt.rawFile)
+                        .then(res => {
+                            selectedImg = res;
+                        })
+                        .catch(err => console.log(err))
+                    avtUrl = await imgProvider(selectedImg);
+                }
+                role = json;
+                resourceUser = json2.json;
+                permissions = json3.json.content;
             }
             const {json} = await httpClient(`${process.env.REACT_APP_API_URL}/${resource}`, {
                 method: 'POST',
                 body: JSON.stringify(resource === "import-invoice" ? params.data.ImportInvoiceRequest
-                    : (categories !== null ? {...params.data, categories: categories} : params.data)),
+                    : (categories !== null ? {
+                        ...params.data,
+                        categories: categories
+                    } : (role !== null ? {
+                        ...params.data,
+                        role: role[0],
+                        userInfo: {
+                            ...params.data.userInfo,
+                            avtUrl: (avtUrl !== null ? avtUrl : null)
+                        },
+                        resourceVariations: resourceUser != null && permissions !== null ? params.data.resourceVariations.map((item: any, index: any) => ({
+                            resource: resourceUser.find((resource: any) => resource.id === item.resource.id),
+                            permissions: item.permissions.map((item: any) => permissions.find((cat: any) => cat.id === item.id))
+                        })) : []
+                    } : params.data))),
 
                 headers: new Headers({
                     'Content-Type': 'application/json',
@@ -133,7 +205,12 @@ export const dataProvider: DataProvider = {
                 }),
                 credentials: 'include'
             })
-            window.location.href = '/#/product';
+            if (json.statusCodeValue < 200 || json.statusCodeValue >= 300) {
+                console.log(json)
+                return Promise.reject({message: json.body});
+            }
+            window.location.href = `/#/${resource}`;
+            console.log(json)
             return Promise.resolve({data: json});
         } catch (error: any) {
             if (error.status === 401) {
@@ -146,6 +223,10 @@ export const dataProvider: DataProvider = {
 
     update: async (resource: any, params: any) => {
         let categories = null;
+        let role = null;
+        let avtUrl = null;
+        let resourceUser: any = null;
+        let permissions: any = null;
         if (resource === 'product') {
             const query = {
                 ids: JSON.stringify({ids: params.data.categoriesIds}),
@@ -162,10 +243,70 @@ export const dataProvider: DataProvider = {
             })
             categories = json;
             console.log(categories);
+        } else if (resource === 'user') {
+            const query = {
+                ids: JSON.stringify({ids: params.data.role}),
+            };
+            const {json} = await httpClient(`${process.env.REACT_APP_API_URL}/role/ids?${fetchUtils.queryParameters(query)}`, {
+                method: 'GET',
+
+                headers: new Headers({
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                }),
+                credentials: 'include'
+            })
+            const query1 = {
+                ids: JSON.stringify({ids: params.data.resourceVariations.map((item: any) => item.resource.id)}),
+            };
+            const json2 = await httpClient(`${process.env.REACT_APP_API_URL}/resource/ids?${fetchUtils.queryParameters(query1)}`, {
+                method: 'GET',
+                headers: new Headers({
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                }),
+                credentials: 'include'
+            })
+            const json3: any = await httpClient(`${process.env.REACT_APP_API_URL}/permission`, {
+                method: 'GET',
+                headers: new Headers({
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                }),
+                credentials: 'include'
+            })
+            if (params.data.userInfo.avt !== undefined && params.data.userInfo.avt !== null) {
+                let selectedImg = null;
+                await getBase64(params.data.userInfo.avt.rawFile)
+                    .then(res => {
+                        selectedImg = res;
+                    })
+                    .catch(err => console.log(err))
+                avtUrl = await imgProvider(selectedImg);
+            }
+            role = json;
+            resourceUser = json2.json;
+            permissions = json3.json.content;
         }
         const {json} = await httpClient(`${process.env.REACT_APP_API_URL}/${resource}/${params.id}`, {
             method: 'PUT',
-            body: JSON.stringify(categories !== null ? {...params.data, categories: categories} : params.data),
+            body: JSON.stringify(categories !== null ? {...params.data, categories: categories} :
+                (role !== null ? {
+                    ...params.data,
+                    role: role[0],
+                    userInfo: {
+                        ...params.data.userInfo,
+                        avtUrl:
+                            avtUrl !== null ? avtUrl :
+                                params.data.userInfo.avtUrl !== undefined && params.data.userInfo.avtUrl !== null ?
+                                    params.data.userInfo.avtUrl :
+                                    null
+                    },
+                    resourceVariations: resourceUser != null && permissions !== null ? params.data.resourceVariations.map((item: any, index: any) => ({
+                        resource: resourceUser.find((resource: any) => resource.id === item.resource.id),
+                        permissions: item.permissions.map((item: any) => permissions.find((cat: any) => cat.id === item.id))
+                    })) : []
+                } : params.data)),
             headers: new Headers({
                 'Content-Type': 'application/json',
                 Accept: 'application/json',

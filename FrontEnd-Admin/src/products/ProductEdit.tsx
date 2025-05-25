@@ -26,7 +26,7 @@ const ProductTitle = () => {
 };
 export const ProductEdit = (props: any) => {
     return (
-        <Edit title={<ProductTitle/>}  hasShow={false}>
+        <Edit title={<ProductTitle/>}>
             <TabbedForm>
                 <TabbedForm.Tab
                     label="Ảnh"
