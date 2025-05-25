@@ -10,13 +10,13 @@ import {
     List,
     Pagination,
     SelectColumnsButton, SelectField,
+    ShowButton,
     TextField,
     TextInput,
     TopToolbar, useGetList,
 } from 'react-admin';
 import {useEffect, useState} from "react";
 import {Category} from "../types";
-import LinkToProducts from "./LinkToProducts";
 
 const ListActions = () => (
     <TopToolbar>
@@ -28,9 +28,9 @@ const ListActions = () => (
 );
 
 const postFilters = (cate: any) => [
-    <TextInput label="Tìm kiếm..." source="q" alwaysOn />,
-    <TextInput label="Tên" source="name" />,
-    <BooleanField label="Trạng thái" source="status" />
+    <TextInput label="Tìm kiếm..." source="q" alwaysOn/>,
+    <TextInput label="Tên" source="name"/>,
+    <BooleanField label="Trạng thái" source="status"/>
 ];
 
 const CategoryList = () => {
@@ -45,29 +45,31 @@ const CategoryList = () => {
             setCategories(data);
         }
     }, [data]);
-    return(
-    <List
-        sort={{field: 'name', order: 'ASC'}}
-        perPage={20}
-        pagination={false}
-        component="div"
-        actions={<ListActions/>}
-        filters={postFilters(categories)}
-    >
-        <DatagridConfigurable>
-            <TextField source="id" label={"Id"}/>
-            <TextField source="name" label={"Tên"}/>
-            <SelectField source="parentId" choices={categories} label={"Danh mục cha"}/>
-            <DateField source="releaseDate" label={"Ngày tạo"}/>
-            <BooleanField source="status" label="Trạng thái"/>
-            <>
-                <LinkToProducts/>
-                <EditButton sx={{marginLeft:5}}/>
-            </>
-        </DatagridConfigurable>
-        <Pagination/>
-    </List>
-)};
+    return (
+        <List
+            sort={{field: 'name', order: 'ASC'}}
+            perPage={20}
+            pagination={false}
+            component="div"
+            actions={<ListActions/>}
+            filters={postFilters(categories)}
+        >
+            <DatagridConfigurable>
+                <TextField source="id"/>
+                <TextField source="name"/>
+                <SelectField source="parentId" choices={categories}/>
+                <DateField source="releaseDate"/>
+                <BooleanField source="status" label="Trạng thái"/>
+
+                <>
+                    <EditButton/>
+                    <ShowButton/>
+                </>
+            </DatagridConfigurable>
+            <Pagination/>
+        </List>
+    )
+};
 
 
 export default CategoryList;

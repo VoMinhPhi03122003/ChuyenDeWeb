@@ -3,9 +3,9 @@ package vn.edu.hcmuaf.cdw.ShopThoiTrang.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,16 +13,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.edu.hcmuaf.cdw.ShopThoiTrang.JWT.JwtUtils;
 import vn.edu.hcmuaf.cdw.ShopThoiTrang.entity.*;
 import vn.edu.hcmuaf.cdw.ShopThoiTrang.reponsitory.*;
 import vn.edu.hcmuaf.cdw.ShopThoiTrang.service.ProductService;
 
-import javax.swing.text.html.HTMLDocument;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -43,7 +42,9 @@ public class ProductServiceImpl implements ProductService {
     private SizeRepository sizeRepository;
 
     @Autowired
-
+    private JwtUtils jwtUtils;
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public List<Product> getAllProducts() {
@@ -74,37 +75,32 @@ public class ProductServiceImpl implements ProductService {
         }
         Specification<Product> specification = (root, query, criteriaBuilder) -> {
             Predicate predicate = criteriaBuilder.conjunction();
-            if (filterJson.has("q")) {
-
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("name"), "%" + filterJson.get("q").asText().toLowerCase() + "%"));
+            if (filterJson.has("name")) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("name"), "%" + filterJson.get("name").asText() + "%"));
             }
-            if (filterJson.has("price_lt") || filterJson.has("price_gt")) {
-                double priceLt = filterJson.has("price_lt") ? filterJson.get("price_lt").asDouble() : Double.MAX_VALUE;
-                double priceGt = filterJson.has("price_gt") ? filterJson.get("price_gt").asDouble() : 0;
+            if (filterJson.has("price")) {
                 Join<Product, Price> priceJoin = root.join("price");
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.between(priceJoin.get("price"), priceGt, priceLt));
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("price"), filterJson.get("price").asDouble()));
             }
             if (filterJson.has("status")) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("status"), filterJson.get("status").asBoolean()));
             }
             if (filterJson.has("categoryId")) {
-                Join<Product, Category> categoryJoin = root.join("categories");
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(categoryJoin.get("id"), filterJson.get("categoryId").asLong()));
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("category").get("id"), filterJson.get("categoryId").asLong()));
             }
             return predicate;
         };
 
-        if (sortBy.equals("price")) {
-            return productRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "price")));
-        }
-        if (sortBy.equals("name")) {
-            return productRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "name")));
-        }
-        if (sortBy.equals("status")) {
-            return productRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "status")));
-        }
-
-        return productRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, sortBy)));
+        return switch (sortBy) {
+            case "price" ->
+                    productRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "price")));
+            case "name" ->
+                    productRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "name")));
+            case "status" ->
+                    productRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "status")));
+            default ->
+                    productRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, sortBy)));
+        };
 
     }
 
@@ -115,7 +111,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public Product saveProduct(Product product) {
+    public Product saveProduct(Product product, HttpServletRequest request) {
         Date currentDate = new Date(System.currentTimeMillis());
 
         // save price
@@ -123,7 +119,15 @@ public class ProductServiceImpl implements ProductService {
         price.setProduct(product);
         priceRepository.save(price);
 
+        for (ImageProduct imageProduct : product.getImgProducts()) {
+            imageProduct.setReleaseDate(currentDate);
+            imageProduct.setUpdateDate(currentDate);
+            imageProduct.setReleaseBy(userRepository.findByUsername(jwtUtils.getJwtFromCookies(request)).orElse(null));
+            imageProduct.setUpdateBy(userRepository.findByUsername(jwtUtils.getJwtFromCookies(request)).orElse(null));
+            imageProduct.setProduct(product);
+            imageProductRepository.save(imageProduct);
 
+        }
         // save variations
         List<Variation> viariations = new ArrayList<>();
         for (Variation variation : product.getVariations()) {

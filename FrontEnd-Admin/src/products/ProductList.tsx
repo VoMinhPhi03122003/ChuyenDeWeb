@@ -6,11 +6,10 @@ import {
     FunctionField,
     EditButton,
     ChipField,
-    SearchInput, DateInput, SelectColumnsButton, DatagridConfigurable, useGetList, DeleteButton,
+    SearchInput, DateInput, SelectColumnsButton, DatagridConfigurable, useGetList,
 } from 'react-admin';
 
 import {
-    Datagrid,
     List,
     NumberField,
     ImageField,
@@ -19,9 +18,9 @@ import {
     BulkUpdateButton,
 } from "react-admin";
 import {Theme, useMediaQuery} from "@mui/material";
-import MobileGrid from "../users/MobileGrid";
 import Aside from "./Aside";
 import {Category} from "../types";
+import MobileProductGrid from "./MobileProductGrid";
 
 const visitorFilters = [
     <SearchInput alwaysOn name={"search"} source={"filter"}/>,
@@ -54,7 +53,7 @@ export const ProductList = () => {
             actions={<VisitorListActions/>}
         >
             {isXsmall ? (
-                <MobileGrid/>
+                <MobileProductGrid/>
             ) : (
                 <DatagridConfigurable
                     rowClick="show"
@@ -65,7 +64,6 @@ export const ProductList = () => {
                         </>
                     }
                 >
-                    <NumberField source="id" label="ID"/>
                     <ImageField sx={{m: "auto"}} className={"cent"} source="imageUrl" label="Ảnh"/>
                     <TextField source="name" label="Tên SP"/>
                     <TextField source="description" label="Mô tả"/>
@@ -90,8 +88,7 @@ export const ProductList = () => {
                     <EditButton/>
                 </DatagridConfigurable>
             )}
-        </List>
-    )
+        </List>)
 };
 
 export default ProductList;
