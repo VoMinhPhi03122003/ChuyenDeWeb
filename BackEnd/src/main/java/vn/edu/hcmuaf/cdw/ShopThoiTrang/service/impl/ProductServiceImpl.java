@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.hcmuaf.cdw.ShopThoiTrang.JWT.JwtUtils;
@@ -22,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -52,6 +54,26 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public List<Product> getAllProducts(String ids) {
+        JsonNode filterJson;
+        try {
+            filterJson = new ObjectMapper().readTree(java.net.URLDecoder.decode(ids, StandardCharsets.UTF_8));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        if (filterJson.has("ids")) {
+            List<Long> idsList = new ArrayList<>();
+            for (JsonNode idNode : filterJson.get("ids")) {
+                idsList.add(idNode.asLong());
+            }
+            Iterable<Long> itr = List.of(Stream.of(idsList).flatMap(List::stream).toArray(Long[]::new));
+            return productRepository.findAllById(itr);
+        }
+
+        return null;
+    }
+
+    @Override
     public List<Product> getProductsStatusTrue() {
         return productRepository.findByStatusTrue();
     }
@@ -75,18 +97,22 @@ public class ProductServiceImpl implements ProductService {
         }
         Specification<Product> specification = (root, query, criteriaBuilder) -> {
             Predicate predicate = criteriaBuilder.conjunction();
-            if (filterJson.has("name")) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("name"), "%" + filterJson.get("name").asText() + "%"));
+            if (filterJson.has("q")) {
+
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("name"), "%" + filterJson.get("q").asText().toLowerCase() + "%"));
             }
-            if (filterJson.has("price")) {
+            if (filterJson.has("price_lt") || filterJson.has("price_gt")) {
+                double priceLt = filterJson.has("price_lt") ? filterJson.get("price_lt").asDouble() : Double.MAX_VALUE;
+                double priceGt = filterJson.has("price_gt") ? filterJson.get("price_gt").asDouble() : 0;
                 Join<Product, Price> priceJoin = root.join("price");
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("price"), filterJson.get("price").asDouble()));
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.between(priceJoin.get("price"), priceGt, priceLt));
             }
             if (filterJson.has("status")) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("status"), filterJson.get("status").asBoolean()));
             }
             if (filterJson.has("categoryId")) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("category").get("id"), filterJson.get("categoryId").asLong()));
+                Join<Product, Category> categoryJoin = root.join("categories");
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(categoryJoin.get("id"), filterJson.get("categoryId").asLong()));
             }
             return predicate;
         };
@@ -111,9 +137,13 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public Product saveProduct(Product product, HttpServletRequest request) {
+    public ResponseEntity<?> saveProduct(Product product, HttpServletRequest request) {
         Date currentDate = new Date(System.currentTimeMillis());
-
+        String jwt = jwtUtils.getJwtFromCookies(request);
+        if (jwt == null) {
+            return ResponseEntity.badRequest().body("Token is null");
+        }
+        String username = jwtUtils.getUserNameFromJwtToken(jwt);
         // save price
         Price price = product.getPrice();
         price.setProduct(product);
@@ -122,8 +152,8 @@ public class ProductServiceImpl implements ProductService {
         for (ImageProduct imageProduct : product.getImgProducts()) {
             imageProduct.setReleaseDate(currentDate);
             imageProduct.setUpdateDate(currentDate);
-            imageProduct.setReleaseBy(userRepository.findByUsername(jwtUtils.getJwtFromCookies(request)).orElse(null));
-            imageProduct.setUpdateBy(userRepository.findByUsername(jwtUtils.getJwtFromCookies(request)).orElse(null));
+            imageProduct.setReleaseBy(userRepository.findByUsername(username).orElse(null));
+            imageProduct.setUpdateBy(userRepository.findByUsername(username).orElse(null));
             imageProduct.setProduct(product);
             imageProductRepository.save(imageProduct);
 
@@ -157,8 +187,8 @@ public class ProductServiceImpl implements ProductService {
         }
         product.setUpdateDate(currentDate);
         product.setReleaseDate(currentDate);
-        product.setReleaseBy(product.getReleaseBy());
-        product.setUpdateBy(product.getUpdateBy());
+        product.setReleaseBy(userRepository.findByUsername(username).orElse(null));
+        product.setUpdateBy(userRepository.findByUsername(username).orElse(null));
         product.setVariations(viariations);
 
         if (product.getImgProducts() == null) {
@@ -170,25 +200,64 @@ public class ProductServiceImpl implements ProductService {
             imageProduct.setUrl(imageProduct.getUrl());
             imageProduct.setReleaseDate(currentDate);
             imageProduct.setUpdateDate(currentDate);
-            imageProduct.setReleaseBy(imageProduct.getReleaseBy());
-            imageProduct.setUpdateBy(imageProduct.getUpdateBy());
+            imageProduct.setReleaseBy(userRepository.findByUsername(username).orElse(null));
+            imageProduct.setUpdateBy(userRepository.findByUsername(username).orElse(null));
             imageProduct.setProduct(product);
             imageProductRepository.save(imageProduct);
             imageProducts.add(imageProduct);
         }
         product.setImgProducts(imageProducts);
 
-        return productRepository.save(product);
+        return ResponseEntity.ok(productRepository.save(product));
 
     }
 
     @Override
     @Transactional
-    public Product updateProduct(long productId, Product productUpdate) {
+    public ResponseEntity<?> updateProduct(long productId, Product productUpdate, HttpServletRequest request) {
         Date currentDate = new Date(System.currentTimeMillis());
 
+        String jwt = jwtUtils.getJwtFromCookies(request);
+        if (jwt == null) {
+            return ResponseEntity.badRequest().body("Token is null");
+        }
+        String username = jwtUtils.getUserNameFromJwtToken(jwt);
         Product existingProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("Product not found with id: " + productId));
+
+        List<ImageProduct> newImageProducts = new ArrayList<>();
+
+        // Cập nhật hoặc thêm mới các ảnh sản phẩm
+        for (ImageProduct newImageProduct : productUpdate.getImgProducts()) {
+            ImageProduct existingImageProduct = existingProduct.getImgProducts().stream()
+                    .filter(i -> i.getUrl().equals(newImageProduct.getUrl()))
+                    .findFirst()
+                    .orElse(null);
+            if (existingImageProduct != null) {
+                newImageProducts.add(existingImageProduct);
+            } else {
+                ImageProduct imageProduct = new ImageProduct();
+                imageProduct.setUrl(newImageProduct.getUrl());
+                imageProduct.setReleaseDate(currentDate);
+                imageProduct.setUpdateDate(currentDate);
+                imageProduct.setReleaseBy(userRepository.findByUsername(username).orElse(null));
+                imageProduct.setUpdateBy(userRepository.findByUsername(username).orElse(null));
+                imageProduct.setProduct(existingProduct);
+                imageProductRepository.save(imageProduct);
+                newImageProducts.add(imageProduct);
+            }
+        }
+
+        // Xóa các ảnh không còn tồn tại
+        for (ImageProduct existingImageProduct : existingProduct.getImgProducts()) {
+            if (newImageProducts.stream()
+                    .noneMatch(i ->
+                            i.getUrl().equals(existingImageProduct.getUrl()))) {
+                imageProductRepository.delete(existingImageProduct);
+            }
+        }
+
+        existingProduct.setImgProducts(newImageProducts);
 
         // Cập nhật các trường của sản phẩm dựa trên productUpdate
         existingProduct.setName(productUpdate.getName());
@@ -246,8 +315,8 @@ public class ProductServiceImpl implements ProductService {
 
                 productUpdate.setUpdateDate(currentDate);
                 productUpdate.setReleaseDate(currentDate);
-                productUpdate.setReleaseBy(productUpdate.getReleaseBy());
-                productUpdate.setUpdateBy(productUpdate.getUpdateBy());
+                productUpdate.setReleaseBy(userRepository.findByUsername(username).orElse(null));
+                productUpdate.setUpdateBy(userRepository.findByUsername(username).orElse(null));
                 productUpdate.setVariations(viariations);
                 updatedVariations.add(updatedVariation);
             }
@@ -272,9 +341,7 @@ public class ProductServiceImpl implements ProductService {
         }
 
         existingProduct.setVariations(updatedVariations);
-        System.out.println("Category: " + productUpdate.getCategories());
-        System.out.println("Category2: " + existingProduct.getCategories());
-        return productRepository.save(existingProduct);
+        return ResponseEntity.ok(productRepository.save(existingProduct));
     }
 
     private void updateSizes(Variation existingVariation, List<Size> updatedSizes) {
