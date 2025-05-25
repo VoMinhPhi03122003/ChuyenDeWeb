@@ -59,7 +59,7 @@ public class AuthServiceImpl implements AuthService {
         if (!passwordEncoder.matches(loginDto.getPassword(), user.getPassword())) {
             return new ResponseEntity<>("wrong password", HttpStatus.EXPECTATION_FAILED);
         }
-        if (user.getRoles().stream().noneMatch(role -> role.getName().equals("USER"))) {
+        if (!user.getRole().getName().equals("USER")) {
             return new ResponseEntity<>("unauthorized ", HttpStatus.NOT_ACCEPTABLE);
         }
         Authentication authentication = authenticationManager.authenticate(
@@ -93,7 +93,7 @@ public class AuthServiceImpl implements AuthService {
         if (!passwordEncoder.matches(loginDto.getPassword(), user.getPassword())) {
             return new ResponseEntity<>("wrong password", HttpStatus.EXPECTATION_FAILED);
         }
-        if (user.getRoles().stream().noneMatch(role -> role.getName().equals("ADMIN"))) {
+        if (!user.getRole().getName().equals("ADMIN")) {
             return new ResponseEntity<>("unauthorized ", HttpStatus.NOT_ACCEPTABLE);
         }
         Authentication authentication = authenticationManager.authenticate(
@@ -239,6 +239,7 @@ public class AuthServiceImpl implements AuthService {
         user.setPasswordEncrypted(passwordEncoder.encode(signupDto.getPassword()));
         user.setEnabled(true);
         user.setUsername(signupDto.getUsername());
+        user.getUserInfo().setUser(user);
         userRepository.save(user);
 
         otpMap.remove(signupDto.getEmail());
