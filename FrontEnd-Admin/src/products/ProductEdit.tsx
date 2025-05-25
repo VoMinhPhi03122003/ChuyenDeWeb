@@ -54,12 +54,10 @@ export const ProductEdit = (props: any) => {
                     sx={{maxWidth: '100%'}}
                 >
                     <ArrayInput source={`variations`} label={`Biến thể`} fullWidth>
-                        <SimpleFormIterator inline>
-                            <NumberInput  source={"id"} label={"ID"} disabled sx={{width: 80}}/>
+                        <SimpleFormIterator>
                             <TextInput source="color" label="Màu sắc"/>
                             <ArrayInput sx={{marginLeft: 10}} source={`sizes`} label={`Sizes`}>
                                 <SimpleFormIterator inline>
-                                    <NumberInput  source={"id"} label={"ID"} disabled sx={{width: 80}}/>
                                     <TextInput source="size" label="Kích cỡ"/>
                                     <NumberInput sx={{width: "20%"}} source="stock" label="Số lượng" disabled
                                     />

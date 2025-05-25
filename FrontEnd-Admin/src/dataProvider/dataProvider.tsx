@@ -53,10 +53,12 @@ export const dataProvider: DataProvider = {
             credentials: 'include',
         }).then(({json}) => {
             return ({
-                data: resource !== 'product' ? json : {
+                data: resource == 'product' ? {
                     ...json,
                     categoriesIds: json.categories.map((cat: any) => cat.id)
-                }
+                } : resource == 'user' ? {
+                    ...json
+                } : json
             })
         }),
     getMany: async (resource: any, params: any) => {
@@ -96,6 +98,7 @@ export const dataProvider: DataProvider = {
                 const query = {
                     ids: JSON.stringify({ids: params.data.categories}),
                 };
+                console.log(encodeURI(params.data.categories))
                 const {json} = await httpClient(`${process.env.REACT_APP_API_URL}/category/ids?${fetchUtils.queryParameters(query)}`, {
                     method: 'GET',
 
@@ -106,11 +109,11 @@ export const dataProvider: DataProvider = {
                     credentials: 'include'
                 })
                 categories = json;
+                console.log(categories);
             }
             const {json} = await httpClient(`${process.env.REACT_APP_API_URL}/${resource}`, {
                 method: 'POST',
-                body: JSON.stringify(resource === "import-invoice" ? params.data.ImportInvoiceRequest
-                :(categories !== null ? {...params.data, categories: categories} : params.data)),
+                body: JSON.stringify(categories !== null ? {...params.data, categories: categories} : params.data),
 
                 headers: new Headers({
                     'Content-Type': 'application/json',
@@ -129,36 +132,18 @@ export const dataProvider: DataProvider = {
         }
     },
 
-    update: async (resource: any, params: any) => {
-        let categories = null;
-        if (resource === 'product') {
-            const query = {
-                ids: JSON.stringify({ids: params.data.categoriesIds}),
-            };
-            console.log(params.data)
-            const {json} = await httpClient(`${process.env.REACT_APP_API_URL}/category/ids?${fetchUtils.queryParameters(query)}`, {
-                method: 'GET',
-
-                headers: new Headers({
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json',
-                }),
-                credentials: 'include'
-            })
-            categories = json;
-            console.log(categories);
-        }
-       const {json} = await httpClient(`${process.env.REACT_APP_API_URL}/${resource}/${params.id}`, {
+    update: (resource: any, params: any) =>
+        httpClient(`${process.env.REACT_APP_API_URL}/${resource}/${params.id}`, {
             method: 'PUT',
-            body: JSON.stringify(categories !== null ? {...params.data, categories: categories} : params.data),
+            body: JSON.stringify(params.data),
             headers: new Headers({
                 'Content-Type': 'application/json',
                 Accept: 'application/json',
             }),
             credentials: 'include'
-        })
-        return Promise.resolve({data: json});
-    },
+        }).then(({json}) => ({
+            data: json,
+        })),
 
     updateMany: (resource: any, params: any) => Promise.resolve({data: []}),
 
@@ -168,8 +153,8 @@ export const dataProvider: DataProvider = {
             headers: new Headers({
                 'Content-Type': 'application/json',
                 Accept: 'application/json',
-            }),
-            credentials: 'include'
+                credentials: 'include',
+            })
         }).then(({json}) => ({
             data: json,
         })),

@@ -1,6 +1,5 @@
 package vn.edu.hcmuaf.cdw.ShopThoiTrang.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -65,11 +64,5 @@ public class Product {
             joinColumns = @JoinColumn(name = "product_id"),
             inverseJoinColumns = @JoinColumn(name = "promotion_id"))
     private List<Promotion> promotions;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER )
-    private List<ImportInvoice> importInvoices;
-
-
 
 }
