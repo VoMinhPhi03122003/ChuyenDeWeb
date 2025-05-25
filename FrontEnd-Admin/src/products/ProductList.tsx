@@ -6,7 +6,7 @@ import {
     FunctionField,
     EditButton,
     ChipField,
-    SearchInput, DateInput, SelectColumnsButton, DatagridConfigurable, useGetList,
+    SearchInput, DateInput, SelectColumnsButton, DatagridConfigurable, useGetList, DeleteButton,
 } from 'react-admin';
 
 import {
@@ -64,6 +64,7 @@ export const ProductList = () => {
                         </>
                     }
                 >
+                    <NumberField source="id" label="ID"/>
                     <ImageField sx={{m: "auto"}} className={"cent"} source="imageUrl" label="Ảnh"/>
                     <TextField source="name" label="Tên SP"/>
                     <TextField source="description" label="Mô tả"/>
@@ -88,7 +89,8 @@ export const ProductList = () => {
                     <EditButton/>
                 </DatagridConfigurable>
             )}
-        </List>)
+        </List>
+    )
 };
 
 export default ProductList;
