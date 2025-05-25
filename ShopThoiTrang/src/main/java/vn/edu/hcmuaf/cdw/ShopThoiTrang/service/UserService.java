@@ -15,5 +15,5 @@ public interface UserService {
     User getUserByUsername(String username);
 
     ResponseEntity<?> getAuthorities(String username);
-    Page<User> getAllUsers(String filter, int start, int end, String sortBy, String order) throws UnsupportedEncodingException;
+    Page<User> getAllUsers(String filter, int page, int perPage, String sortBy, String order) throws UnsupportedEncodingException;
 }

@@ -24,13 +24,22 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductById(id));
     }
     @GetMapping
-    public ResponseEntity<Page<Product>> getAllProducts(@RequestParam(defaultValue = "0") int start,
+    public ResponseEntity<Page<Product>> getAllProducts(@RequestParam(defaultValue = "0") int page,
                                                         @RequestParam(defaultValue = "{}") String filter,
-                                                        @RequestParam(defaultValue = "25") int end,
+                                                        @RequestParam(defaultValue = "25") int perPage,
                                                         @RequestParam(defaultValue = "name") String sort,
                                                         @RequestParam(defaultValue = "DESC") String order) {
-        Page<Product> products = productService.getAllProducts(filter, start, end, sort, order);
+        Page<Product> products = productService.getAllProducts(filter, page, perPage, sort, order);
         return ResponseEntity.ok(products);
+    }
+    @PostMapping
+    public ResponseEntity<?> saveProduct(@RequestBody Product product) {
+
+        return ResponseEntity.ok(productService.saveProduct(product));
+    }
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateProduct(@PathVariable Long id, @RequestBody Product product) {
+        return ResponseEntity.ok(productService.updateProduct(id, product));
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteProduct(@PathVariable Long id) {
