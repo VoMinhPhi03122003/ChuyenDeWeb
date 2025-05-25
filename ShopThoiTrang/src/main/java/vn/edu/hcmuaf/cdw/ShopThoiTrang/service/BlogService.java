@@ -10,4 +10,7 @@ public interface BlogService {
 
 
     Blog getBlogById(Long id);
+    Blog saveBlog(Blog blog);
+    Blog updateBlog(Long id, Blog blog);
+
 }
