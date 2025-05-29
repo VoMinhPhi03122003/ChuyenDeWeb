@@ -7,11 +7,17 @@ import org.springframework.http.ResponseEntity;
 import vn.edu.hcmuaf.cdw.ShopThoiTrang.entity.User;
 import vn.edu.hcmuaf.cdw.ShopThoiTrang.model.dto.CreateUserDTO;
 import vn.edu.hcmuaf.cdw.ShopThoiTrang.model.dto.UpdateUserDTO;
+import vn.edu.hcmuaf.cdw.ShopThoiTrang.model.dto.UserDto;
 
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 public interface UserService {
-    User getUserById(Long id);
+    UserDto getUserById(Long id);
+
+    String changePassword(Long id, String oldPassword, String newPassword);
+
+    String updateInfo(Long id, String name, String phone, String email);
 
     User getUserByUsername(String username);
 
@@ -24,4 +30,6 @@ public interface UserService {
     User updateUser(Long id, UpdateUserDTO dto, HttpServletRequest request);
 
     void deleteUser(Long id);
+
+    List<User> getAllUsers(String ids);
 }

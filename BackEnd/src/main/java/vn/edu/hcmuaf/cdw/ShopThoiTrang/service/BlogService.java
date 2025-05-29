@@ -8,6 +8,7 @@ import java.util.List;
 public interface BlogService {
     Page<Blog> getAllBlogs(String filter, int page, int perPage, String sortBy, String order);
 
+    List<Blog> getBlogsStatusTrue();
 
     Blog getBlogById(Long id);
 

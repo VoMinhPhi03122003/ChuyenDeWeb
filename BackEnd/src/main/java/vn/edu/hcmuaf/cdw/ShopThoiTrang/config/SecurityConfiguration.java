@@ -68,18 +68,21 @@ public class SecurityConfiguration {
 
         http.csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(unauthorizedHandler))
+                //   .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(unauthorizedHandler))
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers("/api/auth/**").permitAll()
                                 .requestMatchers("/api/test/**").authenticated()
                                 .requestMatchers("/api/product/**").permitAll()
+                                .requestMatchers("/api/payosse/**").permitAll()
                                 .requestMatchers("/api/user/**").permitAll()
                                 .requestMatchers("/api/category/**").permitAll()
+                                .requestMatchers("/api/payos/**").permitAll()
                                 .requestMatchers("/api/blog/**").permitAll()
                                 .requestMatchers("/api/import-invoice/**").permitAll()
                                 .requestMatchers("/api/order/**").permitAll()
                                 .requestMatchers("/api/order-status/**").permitAll()
                                 .requestMatchers(("/api/promotion/**")).permitAll()
+                                .requestMatchers("/api/contact/**").permitAll()
                                 .anyRequest().authenticated()
                 );
 
