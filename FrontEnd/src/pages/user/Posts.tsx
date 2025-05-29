@@ -1,29 +1,10 @@
-import React, {Fragment, useEffect, useState} from "react";
+import React, {Fragment} from "react";
 import Breadcrumb from "../../wrappers/breadcrumb/Breadcrumb";
 import PostsList from "../../wrappers/blog/PostsList";
 import PostPagination from "../../wrappers/blog/PostPagination";
 import PostSidebar from "../../wrappers/blog/PostSidebar";
-import axios from "axios";
-import {fetchProducts} from "../../store/actions/productActions";
 
 const Posts = () => {
-
-    const [posts, setPosts] = useState([]);
-    useEffect(() => {
-        const fectch = async () => {
-            await axios.get(`http://localhost:8080/api/blog/user`, {
-                headers: {
-                    Accept: 'application/json',
-                    "Content-Type": "application/json"
-                }
-            }).then(response => {
-                setPosts(response.data);
-            })
-        }
-        fectch().then();
-    }, []);
-
-    console.log(posts);
 
     return (
         <Fragment>
@@ -34,7 +15,7 @@ const Posts = () => {
                         <div className="col-lg-9">
                             <div className="ml-20">
                                 <div className="row">
-                                    <PostsList posts={posts}/>
+                                    <PostsList/>
                                 </div>
 
                                 {/* blog pagination */}

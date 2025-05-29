@@ -17,7 +17,6 @@ import vn.edu.hcmuaf.cdw.ShopThoiTrang.service.BlogService;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
-import java.util.List;
 
 import org.springframework.data.jpa.domain.Specification;
 
@@ -59,11 +58,6 @@ public class BlogServiceImpl implements BlogService {
         }
 
         return blogRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, sortBy)));
-    }
-
-    @Override
-    public List<Blog> getBlogsStatusTrue() {
-        return blogRepository.findAllByStatusTrue();
     }
 
     @Override
