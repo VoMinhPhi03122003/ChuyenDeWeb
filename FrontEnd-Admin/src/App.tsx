@@ -32,6 +32,7 @@ import PromotionList from "./promotion/PromotionList";
 import PromotionEdit from "./promotion/PromotionEdit";
 import PromotionCreate from "./promotion/PromotionCreate";
 import ReviewList from "./reviews/ReviewList";
+import ReviewEdit from "./reviews/ReviewEdit";
 
 const App = () => {
     return (

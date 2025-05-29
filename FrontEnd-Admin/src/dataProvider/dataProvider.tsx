@@ -140,27 +140,9 @@ export const dataProvider: DataProvider = {
 
             return Promise.resolve({data: json})
         } catch (error: any) {
-            if (error.status === 401) {
-                await httpClient(`${process.env.REACT_APP_API_URL}/auth/refresh-token`, {
-                    method: 'POST',
-                    headers: new Headers({
-                        Accept: 'application/json',
-                        'Content-Type': 'application/json'
-                    }),
-                    credentials: 'include',
-                }).then((response: any) => {
-                    console.log(response)
-                    Promise.resolve();
-                }).catch((error: any) => {
-                    console.log(error)
-                    // @ts-ignore
-                    return authProvider.logout();
-                })
-            } else {
-                console.log(error)
-                return Promise.reject({message: error.response.data.message});
-            }
-            return Promise.resolve({data: []})
+
+            console.log(error)
+            return Promise.reject({message: error.response.data.message});
         }
     },
     getManyReference: (resource: any, params: any) => Promise.resolve({data: []}),
