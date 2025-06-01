@@ -1,1 +1,3 @@
 BackEnd/src/main/resources/application.properties
+# Ignore node_modules
+node_modules/
