@@ -1,8 +1,7 @@
-import React, {Fragment, useEffect, useState} from "react";
+import React, {Fragment, useEffect, useState} from "react";More actions
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
 import {Link} from "react-router-dom";
-// @ts-ignore
 import CryptoJS from 'crypto-js';
 import {getDiscountPrice} from "../../helpers/product";
 import Breadcrumb from "../../wrappers/breadcrumb/Breadcrumb";
@@ -12,7 +11,6 @@ import RadioGroup from '@mui/material/RadioGroup';
 import {FormControl, FormControlLabel, FormLabel} from "@mui/material";
 import toast from "react-hot-toast";
 import {ClipLoader} from "react-spinners";
-import useScript from "react-script-hook";
 
 const Checkout = ({cartItems}: any) => {
     let cartTotalPrice = 0;
@@ -29,6 +27,8 @@ const Checkout = ({cartItems}: any) => {
     const [phone, setPhone] = useState("");
     const [address, setAddress] = useState("");
     const [note, setNote] = useState("");
+    const [email, setEmail] = useState("");
+    const [userId, setUserId] = useState(-1);
 
     const [fee, setFee] = useState(0);
     const [paymentType, setPaymentType] = useState('cod');
@@ -36,6 +36,31 @@ const Checkout = ({cartItems}: any) => {
 
     useEffect(() => {
     }, [isLoading, cartItems]);
+
+    useEffect(() => {Add commentMore actions
+        const user = localStorage.getItem('user');
+        if (user) {
+            const userObj = JSON.parse(user);
+            setUserId(userObj.id);
+            const fetchInfo = async () => {
+                await axios.get(`${process.env.REACT_APP_API_ENDPOINT}user/${userObj.id}`, {
+                    headers: {
+                        Accept: 'application/json',
+                        "Content-Type": "application/json",
+                    },
+                    withCredentials: true
+                }).then((response: any) => {Add commentMore actions
+                    setName(response.data.userInfo.fullName);
+                    setPhone(response.data.userInfo.phone);
+                    setEmail(response.data.userInfo.email);
+                }).catch((error) => {
+                    console.log(error);
+                })
+            }
+            fetchInfo();
+        }
+    }, []);
+                }
 
     // payos init
     const [loading, error]: any = useScript({
@@ -155,6 +180,40 @@ const Checkout = ({cartItems}: any) => {
     const handleCreateOrder = () => {
         setIsLoading(true)
         setTimeout(async () => {
+                let date = new Date();
+                date.setMinutes(date.getMinutes() + 10);
+                let unixTimestamp = Math.floor(date.getTime() / 1000);
+                const orderDetails = cartItems.map((item: any) => (
+                {
+                    id: item.id,
+                        price: getDiscountPrice(item.price.price, item.promotions[0]) === null ?
+                    item.price.price : getDiscountPrice(item.price.price, item.promotions[0]),
+                    variation_id: item.variations.find((variation: any) => variation.color === item.selectedProductColor).id,
+                    sizes_id: item.variations.find((variation: any) =>
+                    variation.color === item.selectedProductColor).sizes.find((size: any) =>
+                    size.size === item.selectedProductSize).id,
+                    quantity: item.quantity,
+                }
+            ));
+            console.log(orderDetails)
+            const dataCart = {
+                id: unixTimestamp,
+                fullname: name,
+                phone: phone,
+                user_id: userId !== -1 ? userId : null,
+                province: selectedProvince,
+                district: selectedDistrict,
+                ward: selectedWard,
+                address: address,
+                payMethod: paymentType,
+                payment_status: "no",
+                shippingFee: fee,
+                shippingCode: "",
+                totalAmount: cartTotalPrice,
+                note: note,
+                status: 0,
+                orderDetails: orderDetails,
+            };
                 if (name === "" || phone === "" || address === "" ||
                     selectedProvince === null || selectedProvince === "" || selectedDistrict === null
                     || selectedDistrict === "" || selectedWard === null || selectedWard === "") {
@@ -164,9 +223,22 @@ const Checkout = ({cartItems}: any) => {
                 }
                 switch (paymentType) {
                     case 'cod':
-                        postOrderGHN(paymentType).then((response: any) => {
-                            console.log(response.data);
-                            toast.success('Đặt hàng thành công!');
+                        postOrderGHN(paymentType).then(async (response: any) => {Add commentMore actions
+                            dataCart.shippingCode = response.data.data.order_code;
+
+                            await axios.post(`${process.env.REACT_APP_API_ENDPOINT}order`, dataCart, {
+                                headers: {
+                                    Accept: 'application/json',
+                                    "Content-Type": "application/json",
+                                },
+                                withCredentials: true
+                            }).then((response) => {
+                                console.log(response.data);
+                                window.location.href = '/payment-result?order=' + unixTimestamp + '&status=success&type=cod';
+                                toast.success('Đặt hàng thành công!');
+                            }).catch((error) => {
+                                toast.error(error.response.data.code_message_value)
+                            })
                         }).catch((error) => {
                             toast.error(error.response.data.code_message_value)
                             console.log(error);
@@ -234,7 +306,7 @@ const Checkout = ({cartItems}: any) => {
                             amount: amount,
                             description: "VQRIO123",
                             buyerName: name,
-                            buyerEmail: "buyer-email@gmail.com",
+                            buyerEmail: email,
                             buyerPhone: phone,
                             buyerAddress: address + ", " + selectedWard + ", " + selectedDistrict + ", " + selectedProvince,
                             items: cartItems.map((cartItem: any) => {
@@ -324,7 +396,7 @@ const Checkout = ({cartItems}: any) => {
                                         <div className="col-lg-6 col-md-6">
                                             <div className="billing-info mb-20">
                                                 <label>Họ tên</label>
-                                                <input type="text" required
+                                                <input type="text" required value={name ? name : ""}
                                                        onChange={(e: any) => setName(e.target.value)}
                                                 />
                                             </div>
@@ -332,7 +404,7 @@ const Checkout = ({cartItems}: any) => {
                                         <div className="col-lg-6 col-md-6">
                                             <div className="billing-info mb-20">
                                                 <label>Số điện thoại</label>
-                                                <input type="text" required
+                                                <input type="text" required  value={phone ? phone : ""}
                                                        onChange={(e: any) => setPhone(e.target.value)}
                                                 />
                                             </div>
