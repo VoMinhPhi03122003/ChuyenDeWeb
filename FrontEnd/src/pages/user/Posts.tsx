@@ -13,6 +13,8 @@ const Posts = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [currentData, setCurrentData] = useState([]);
     const [offset, setOffset] = useState(0);
+    const [search, setSearch] = useState('');
+    const [length, setLength] = useState(0);
     const pageLimit = 6;
     useEffect(() => {
         const fectch = async () => {
@@ -27,7 +29,12 @@ const Posts = () => {
             })
         }
         fectch();
-    }, [posts, offset, currentPage, currentData]);
+    }, []);
+
+    useEffect(() => {
+        setLength(posts.filter((post: any) => post.title.indexOf(search) !== -1).length);
+        setCurrentData(posts.filter((post: any) => post.title.indexOf(search) !== -1).slice(offset, offset + pageLimit));
+    }, [offset, posts, search, length]);
 
     return (
         <Fragment>
@@ -41,7 +48,7 @@ const Posts = () => {
                                     <PostsList posts={currentData}/>
                                 <div className="pro-pagination-style text-center mt-30">
                                     <Paginator
-                                        totalRecords={posts.length}
+                                        totalRecords={length}
                                         pageLimit={pageLimit}
                                         pageNeighbours={2}
                                         setOffset={setOffset}
@@ -55,7 +62,7 @@ const Posts = () => {
                             </div>
                         </div>
                         <div className="col-lg-3">
-                            <PostSidebar/>
+                            <PostSidebar setSearch={setSearch}/>
                         </div>
                     </div>
                 </div>
