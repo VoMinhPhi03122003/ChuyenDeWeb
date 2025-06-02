@@ -7,6 +7,7 @@ import ShopProducts from "../../components/shop/ShopProducts";
 import {connect} from "react-redux";
 // @ts-ignore
 import Paginator from "react-hooks-paginator";
+import {animateScroll} from "react-scroll";
 
 const Shop = ({products}: any) => {
     const [layout, setLayout] = useState('grid three-column');
@@ -19,6 +20,7 @@ const Shop = ({products}: any) => {
     const [currentData, setCurrentData] = useState([]);
     const [sortedProducts, setSortedProducts] = useState([]);
     const [searchValue, setSearchValue] = useState('');
+    const [orderBy, setOrderBy] = useState('default');
 
     const pageLimit = 15;
 
@@ -42,6 +44,9 @@ const Shop = ({products}: any) => {
         setSortedProducts(sortedProducts ? sortedProducts : products);
         setCurrentData(sortedProducts ? sortedProducts.slice(offset, offset + pageLimit) : products);
     }, [offset, products, sortType, sortValue, filterSortType, filterSortValue, searchValue]);
+    useEffect(() => {
+        animateScroll.scrollToTop();
+    }, [currentPage]);
 
     return (
         <Fragment>
@@ -51,14 +56,15 @@ const Shop = ({products}: any) => {
                 <div className="container">
                     <div className="row">
                         <div className="col-lg-3 order-2 order-lg-1">
-                            <ShopSidebar products={products} getSortParams={getSortParams} setSearchValue={setSearchValue}
+                            <ShopSidebar products={products} getSortParams={getSortParams}
+                                         setSearchValue={setSearchValue}
                                          sideSpaceClass="mr-30"/>
                         </div>
                         <div className="col-lg-9 order-1 order-lg-2">
                             <ShopTopbar getLayout={getLayout} getFilterSortParams={getFilterSortParams}
                                         productCount={sortedProducts.length} sortedProductCount={currentData.length}/>
 
-                         
+
                             <ShopProducts layout={layout} products={currentData}/>
 
 
