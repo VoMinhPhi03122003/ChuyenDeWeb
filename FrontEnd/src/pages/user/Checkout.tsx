@@ -20,9 +20,9 @@ const Checkout = ({cartItems, deleteAllFromCart}: any) => {
     const [districts, setDistricts] = useState([]);
     const [wards, setWards] = useState([]);
 
-    const [selectedProvince, setSelectedProvince] = useState(null);
+    const [selectedProvince, setSelectedProvince]: any = useState(null);
     const [selectedDistrict, setSelectedDistrict]: any = useState(null);
-    const [selectedWard, setSelectedWard] = useState(null);
+    const [selectedWard, setSelectedWard]: any = useState(null);
 
     const [name, setName] = useState("");
     const [phone, setPhone] = useState("");
@@ -148,9 +148,9 @@ const getDistricts = async (provinceId: any) => {
                 from_phone: "0373132765",
                 to_name: name,
                 to_phone: phone,
-                to_address: address + ", " + selectedWard + ", " + selectedDistrict + ", " + selectedProvince,
-                to_ward_code: selectedWard,
-                to_district_id: parseInt(selectedDistrict),
+                to_address: address + ", " + selectedWard.name + ", " + selectedDistrict.name + ", " + selectedProvince.name,
+                to_ward_code: selectedWard.id,
+                to_district_id: parseInt(selectedDistrict.id),
                 content: "Shop 2h - Đơn hàng của bạn",
                 weight: 200,
                 length: 1,
@@ -205,9 +205,9 @@ const getDistricts = async (provinceId: any) => {
                 name: name,
                 phone: phone,
                 user_id: userId !== -1 ? userId : null,
-                province: selectedProvince,
-                district: selectedDistrict,
-                ward: selectedWard,
+                    province: selectedProvince.name,
+                    district: selectedDistrict.name,
+                    ward: selectedWard.name,
                 address: address,
                     paymentMethod: paymentType,
                     paymentCode: "",
@@ -221,8 +221,8 @@ const getDistricts = async (provinceId: any) => {
                 orderDetails: orderDetails,
             };
                 if (name === "" || phone === "" || address === "" ||
-                    selectedProvince === null || selectedProvince === "" || selectedDistrict === null
-                    || selectedDistrict === "" || selectedWard === null || selectedWard === "") {
+                    selectedProvince === null || selectedDistrict === null
+            || selectedWard === null) {
                     toast.error("Vui lòng nhập đầy đủ thông tin khách hàng")
                     setIsLoading(false)
                     return;
@@ -284,7 +284,7 @@ const getDistricts = async (provinceId: any) => {
                             .catch((error) => {
                                 toast.error(error.response.data.code_message_value)
                                 console.log(error);
-                            });Add commentMore actions
+                            })
                         if (shipping_create_status) {
                             const body: any = cartItems.map((cartItem: any) => {
                                 return {
@@ -344,7 +344,7 @@ const getDistricts = async (provinceId: any) => {
                                     price: getDiscountPrice(cartItem.price.price, cartItem.promotions[0]) === null ?
                                         cartItem.price.price : getDiscountPrice(cartItem.price.price, cartItem.promotions[0]),
                                 }
-                                await axios.post('https://api-merchant.payos.vn/v2/payment-requests', {Add commentMore actions
+                                await axios.post('https://api-merchant.payos.vn/v2/payment-requests', {
                                     orderCode: unixTimestamp,
                                     amount: amount,
                                     description: description,
@@ -372,14 +372,14 @@ const getDistricts = async (provinceId: any) => {
                                 let checkoutResponse = response.data.data;
                                 let url = checkoutResponse.checkoutUrl;
 
-                                const eventSource = new EventSource(`${process.env.REACT_APP_API_ENDPOINT}payosse/${unixTimestamp}`, {Add commentMore actions
+                                const eventSource = new EventSource(`${process.env.REACT_APP_API_ENDPOINT}payosse/${unixTimestamp}`,
                                     withCredentials: true,
                                 });
 
                                 eventSource.onopen = function (event: any) {
                                     console.log(event);
                                 }
-                                        eventSource.onmessage = (event) => {Add commentMore actions
+                                        eventSource.onmessage = (event) => {
                                             const json = JSON.parse(event.data);
                                             if (json.code === '01' || json.code === '00') {
                                                 localStorage.setItem("order", JSON.stringify(dataCart));
@@ -391,14 +391,14 @@ const getDistricts = async (provinceId: any) => {
                                                     });
                                                     return params.toString();
                                                 };
-                                                const queryString = convertObjectToQueryString(json);Add commentMore actions
+                                                const queryString = convertObjectToQueryString(json);
                                                 window.location.href = '/payment-result-payos?' + queryString;
                                             } else {
                                             }
                                         };
 
 
-                                eventSource.onerror = function (error) {Add commentMore actions
+                                eventSource.onerror = function (error) {
                                     console.error('EventSource failed:', error);
                                     eventSource.close();
                                 };
@@ -465,7 +465,10 @@ const getDistricts = async (provinceId: any) => {
                                                 <label>Tỉnh/Thành phố</label>
                                                 <select required onChange={
                                                     (e: any) => {
-                                                        setSelectedProvince(e.target.value);
+                                                        setSelectedProvince({
+                                                            id: e.target.value,
+                                                            name: e.target.options[e.target.selectedIndex].text
+                                                        });
                                                         getDistricts(e.target.value);
                                                     }
                                                 }>
@@ -485,7 +488,10 @@ const getDistricts = async (provinceId: any) => {
                                                 <select required
                                                         onChange={
                                                             (e: any) => {
-                                                                setSelectedDistrict(e.target.value);
+                                                                setSelectedDistrict({
+                                                                    id: e.target.value,
+                                                                    name: e.target.options[e.target.selectedIndex].text
+                                                                });
                                                                 getWards(e.target.value);
                                                             }
                                                         }
@@ -504,9 +510,11 @@ const getDistricts = async (provinceId: any) => {
                                             <div className="billing-select mb-20">
                                                 <label>Phường/Xã</label>
                                                 <select required onChange={
-                                                    (e: any) => {
-                                                        setSelectedWard(e.target.value);
-                                                        calculateFee(process.env.REACT_APP_GHN_SHOP_DISTRICT_ID, process.env.REACT_APP_GHN_SHOP_WARD_CODE, selectedDistrict, e.target.value);
+                                                    setSelectedWard({
+                                                        id: e.target.value,
+                                                        name: e.target.options[e.target.selectedIndex].text
+                                                    });
+                                                    calculateFee(process.env.REACT_APP_GHN_SHOP_DISTRICT_ID, process.env.REACT_APP_GHN_SHOP_WARD_CODE, selectedDistrict.id, e.target.value);
                                                     }
                                                 }>
                                                     <option value="">Chọn phường/xã</option>
@@ -692,7 +700,7 @@ const mapStateToProps = (state: any) => {
     }
 }
 
-const mapDispatchToProps = (dispatch: any) => {Add commentMore actions
+const mapDispatchToProps = (dispatch: any) => {
     return {
         deleteAllFromCart: (addToast: any) => {
             dispatch(deleteAllFromCart(addToast));
