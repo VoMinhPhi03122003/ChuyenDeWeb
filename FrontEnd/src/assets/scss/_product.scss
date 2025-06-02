@@ -251,6 +251,7 @@
     overflow: hidden;
     img {
       width: 100%;
+      min-height: 256px;
     }
 
     &-badges {
