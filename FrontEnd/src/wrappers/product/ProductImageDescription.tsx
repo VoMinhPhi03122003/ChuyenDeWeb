@@ -5,8 +5,7 @@ import ProductImageGallerySideThumb from "../../components/product/ProductImageG
 import ProductDescriptionInfo from "../../components/product/ProductDescriptionInfo";
 import {connect} from "react-redux";
 
-const ProductImageDescription = ({spaceTopClass, spaceBottomClass, product, cartItems, wishlistItems}: any) => {
-    const wishlistItem = wishlistItems.filter(
+const ProductImageDescription = ({spaceTopClass, spaceBottomClass, product, cartItems, wishlistItems, reviews}: any) => {
         (wishlistItem: any) => wishlistItem.id === product.id
     )[0];
     const {addToast} = useToasts();
@@ -39,6 +38,7 @@ const ProductImageDescription = ({spaceTopClass, spaceBottomClass, product, cart
                             cartItems={cartItems}
                             wishlistItem={wishlistItem}
                             addToast={addToast}
+                            reviews={reviews}
                         />
                     </div>
                 </div>

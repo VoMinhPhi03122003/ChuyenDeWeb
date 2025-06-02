@@ -56,6 +56,11 @@ public class ReviewServiceImpl implements ReviewService {
         review.setOrderDetail(orderDetailRepository.findById(reviewRequest.getOrderDetail()).orElse(null));
         return reviewRepository.save(review);
     }
+
+    @Override
+    public List<Review> getReviewsByProductId(Long productId) {
+        return reviewRepository.findAllByProductIdAndType(productId, 2);
+    }
     @Override
     public Page<Review> getAllReviews(String filter, int start, int end, String sortBy, String order) {
         Sort.Direction direction = Sort.Direction.ASC;
@@ -140,24 +145,9 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public Review updateReview(Long id, Review review) {
+    public Review updateReview(Long id, int type) {
         Review reviewToUpdate = reviewRepository.findById(id).orElse(null);
-        if (reviewToUpdate == null) {
-            return null;
-        }
-        if (review.getContent() != null)
-            reviewToUpdate.setContent(review.getContent());
-        if (review.getRating() != 0)
-            reviewToUpdate.setRating(review.getRating());
-        reviewToUpdate.setStatus(review.isStatus());
-        reviewToUpdate.setType(review.getType());
-        if (review.getProduct() != null)
-            reviewToUpdate.setProduct(review.getProduct());
-        if (review.getReviewer() != null)
-            reviewToUpdate.setReviewer(review.getReviewer());
-        if (review.getReviewedDate() != null)
-            reviewToUpdate.setReviewedDate(review.getReviewedDate());
-        reviewToUpdate.setDeleted(review.isDeleted());
+        reviewToUpdate.setType(type);
         return reviewRepository.save(reviewToUpdate);
     }
 

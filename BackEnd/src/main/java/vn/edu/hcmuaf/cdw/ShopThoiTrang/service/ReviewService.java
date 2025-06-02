@@ -10,13 +10,15 @@ public interface ReviewService {
 
     Review createReview(ReviewRequest reviewRequest);
 
+    List<Review> getReviewsByProductId(Long productId);
+
     Page<Review> getAllReviews(String filter, int start, int end, String sortBy, String order);
 
     List<Review> getAllReviews(String ids);
 
     Review getReviewById(Long id);
 
-    Review updateReview(Long id, Review review);
+    Review updateReview(Long id, int type);
 
     void deleteReview(Long id);
 

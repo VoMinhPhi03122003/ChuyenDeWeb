@@ -1,5 +1,6 @@
 package vn.edu.hcmuaf.cdw.ShopThoiTrang.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +9,7 @@ import vn.edu.hcmuaf.cdw.ShopThoiTrang.entity.Review;
 import vn.edu.hcmuaf.cdw.ShopThoiTrang.model.dto.ReviewRequest;
 import vn.edu.hcmuaf.cdw.ShopThoiTrang.service.ReviewService;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 
 @RestController
@@ -17,11 +19,18 @@ public class ReviewController {
     private ReviewService reviewService;
 
     @PostMapping
-    public ResponseEntity<Review> createReview(@RequestBody ReviewRequest review) {
-        Review createdReview = reviewService.createReview(review);
+    public ResponseEntity<Review> updateReview(@PathVariable Long id, @RequestBody Object type) {
+        LinkedHashMap<String, Integer> map;
+        map = (LinkedHashMap<String, Integer>) type;
+        Review updatedReview = reviewService.updateReview(id, map.get("type"));
         return ResponseEntity.ok(createdReview);
     }
 
+    @GetMapping("/product/{productId}")
+    public ResponseEntity<List<Review>> getReviewsByProductId(@PathVariable Long productId) {
+        List<Review> reviews = reviewService.getReviewsByProductId(productId);
+        return ResponseEntity.ok(reviews);
+    }
     @GetMapping
     public ResponseEntity<Page<Review>> getAllReviews(@RequestParam(defaultValue = "0") int start,
                                                       @RequestParam(defaultValue = "{}") String filter,
