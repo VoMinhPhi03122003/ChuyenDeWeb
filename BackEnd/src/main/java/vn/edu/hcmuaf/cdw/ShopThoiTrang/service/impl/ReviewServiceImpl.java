@@ -56,6 +56,11 @@ public class ReviewServiceImpl implements ReviewService {
         review.setOrderDetail(orderDetailRepository.findById(reviewRequest.getOrderDetail()).orElse(null));
         return reviewRepository.save(review);
     }
+
+    @Override
+    public List<Review> getReviewsByProductId(Long productId) {
+        return reviewRepository.findAllByProductIdAndType(productId, 2);
+    }
     @Override
     public Page<Review> getAllReviews(String filter, int start, int end, String sortBy, String order) {
         Sort.Direction direction = Sort.Direction.ASC;
