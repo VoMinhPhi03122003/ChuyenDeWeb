@@ -1,4 +1,4 @@
-import {Customer, Order, Review} from "../types";
+import {Customer, Order, Product, Review} from "../types";
 import {Theme, useMediaQuery} from "@mui/material";
 import React, {CSSProperties, useMemo} from "react";
 import {endOfMonth, startOfDay, startOfMonth, subDays} from "date-fns";
@@ -8,10 +8,12 @@ import NbNewOrders from "./NbNewOrders";
 import OrderChart from "./OrderChart";
 import PendingOrders from "./PendingOrders";
 import PendingReviews from "./PendingReviews";
-import NewCustomers from "./NewCustomers";
 import OrderPieChart from "./OrderPieChart";
 import NbNewUsers from "./NbNewUsers";
 import NbNewReviews from "./NbNewReviews";
+import BestSeller from "./BestSeller";
+import OutOfStock from "./OutOfStock";
+import NewCustomers from "./NewCustomers";
 
 const Spacer = () => <span style={{width: '1em'}}/>;
 const VerticalSpacer = () => <span style={{height: '1em'}}/>;
@@ -28,31 +30,42 @@ const DashBoard = () => {
     // get a month ago
     const aMonthAgo = useMemo(() => subDays(startOfDay(new Date()), 30), []);
 
+    // get month current
+    const currentMonth = new Date().getMonth() + 1;
+
+    // get month ago
+    const monthAgo = new Date().getMonth() > 0 ? new Date().getMonth() : 12;
+
+    // get orders of month ago
     const {data: ordersMonth} = useGetList<Order>('order', {
         filter: {date_gte: aMonthAgo.toISOString()},
         sort: {field: "OrderDate", order: "DESC"},
         pagination: {page: 1, perPage: 50}
     })
 
+    // get orders
     const {data: orders} = useGetList<Order>('order', {
         sort: {field: "OrderDate", order: "DESC"},
         pagination: {page: 1, perPage: 50}
     })
 
+    // get users
     const {data: users} = useGetList<Customer>('user', {
         pagination: {page: 1, perPage: 50}
     })
 
+    // get reviews
     const {data: reviews} = useGetList<Review>('review', {
         sort: { field: 'reviewedDate', order: 'DESC' },
         pagination: { page: 1, perPage: 100 },
     });
 
-    // get month current
-    const currentMonth = new Date().getMonth() + 1;
+    // get prducts
+    const {data: products} = useGetList<Product>('product', {
+        sort: { field: 'name', order: 'DESC' },
+        pagination: { page: 1, perPage: 100 },
+    });
 
-    // get month ago
-    const monthAgo = new Date().getMonth() > 0 ? new Date().getMonth() : 12;
 
     // get orders by month
     const useOrdersByMonth = (month: number) => {
@@ -64,15 +77,15 @@ const DashBoard = () => {
             });
         }, [orders, month]);
     };
-
     const ordersCurrentMonth = useOrdersByMonth(currentMonth);
     const ordersLastMonth = useOrdersByMonth(monthAgo);
 
+    // get revenue of orders
     const getRevenue = (orders: Order[]) => {
         return orders.reduce((total: number, order: any) => total + order.totalAmount, 0);
     }
 
-    // get user that have created date in month current
+    // get user that have created date in month
     const useUsersByMonth = (month: number) => {
         return useMemo(() => {
             if (!users) return [];
@@ -100,6 +113,7 @@ const DashBoard = () => {
     const reviewsCurrentMonth = useReviewsByMonth(currentMonth);
     const reviewsLastMonth = useReviewsByMonth(monthAgo);
 
+    // get aggregation
     const aggregation = useMemo<State>(() => {
         if (!ordersMonth) return {};
         const aggregations = ordersMonth
@@ -130,12 +144,11 @@ const DashBoard = () => {
         }
     }, [ordersMonth]);
 
-
     const {nbNewOrders, pendingOrders, revenue, recentOrders} = aggregation;
 
-    const compareRevenue = (currentRevenue: number, lastRevenue: number) => {
+
+    const compareGetPercent = (currentRevenue: number, lastRevenue: number) => {
         if (lastRevenue === 0) {
-            // Nếu doanh thu tháng trước bằng 0, chúng ta cần xử lý đặc biệt để tránh chia cho 0
             if (currentRevenue === 0) {
                 return {
                     percentageChange: 0,
@@ -158,6 +171,66 @@ const DashBoard = () => {
             isIncrease
         } as Percent;
     };
+
+    // get product best seller
+    const getBestSeller = (orders: any) => {
+        if (!orders) return [];
+
+        const products: any = [];
+
+        // Lọc các đơn hàng có statusId khác 7
+        const validOrders = orders.filter((order: any) => order.statusId !== 7);
+
+        validOrders.forEach((order: any) => {
+            order.orderDetails.forEach((orderDetail: any) => {
+                if (products[orderDetail.productId.id]) {
+                    products[orderDetail.productId.id].quantity += orderDetail.quantity;
+                } else {
+                    products[orderDetail.productId.id] = {
+                        product: orderDetail.productId,
+                        quantity: orderDetail.quantity,
+                    };
+                }
+            });
+        });
+
+        return Object.values(products)
+            .sort((a: any, b: any) => b.quantity - a.quantity)
+            .slice(0, 10);
+    };
+
+    const bestSeller = useMemo(() => getBestSeller(orders), [orders]);
+
+    // get product out of stock
+    const getOutOfStock = (products: any): Product[] => {
+        if (!products) {
+            return [];
+        }
+
+        return products.filter((product:any) =>
+            product.variations.some((variation : any) =>
+                variation.sizes.some((size : any) => size.stock === 0)
+            )
+        );
+    };
+
+    const outOfStock = useMemo(() => getOutOfStock(products), [products]);
+
+    // get loyal customers
+    const getLoyalCustomers = (users: any, orders: any) => {
+        if (!users || !orders) return [];
+        const loyalCustomers = users.map((user: any) => {
+            const userOrders = orders.filter((order: any) => order.user.id === user.id);
+            return {
+                user,
+                totalOrders: userOrders.length,
+                totalAmount: userOrders.reduce((acc: number, order: any) => acc + order.totalAmount, 0),
+            };
+        });
+        return loyalCustomers.sort((a: any, b: any) => b.totalAmount - a.totalAmount).slice(0, 10);
+    };
+
+    const loyalCustomers = useMemo(() => getLoyalCustomers(users, orders), [users, orders]);
 
     return isXSmall ? (
         <div>
@@ -196,19 +269,19 @@ const DashBoard = () => {
                             minimumFractionDigits: 0,
                             maximumFractionDigits: 0,
                         })}
-                        percent={compareRevenue(getRevenue(ordersCurrentMonth),getRevenue(ordersLastMonth))}
+                        percent={compareGetPercent(getRevenue(ordersCurrentMonth),getRevenue(ordersLastMonth))}
                         />
                         <Spacer/>
                         <NbNewOrders value={ordersCurrentMonth.length}
-                                     percent={compareRevenue(ordersCurrentMonth.length,ordersLastMonth.length)}
+                                     percent={compareGetPercent(ordersCurrentMonth.length,ordersLastMonth.length)}
                         />
                         <Spacer/>
                         <NbNewUsers value={usersCurrentMonth.length}
-                                    percent={compareRevenue(usersCurrentMonth.length,usersLastMonth.length)}
+                                    percent={compareGetPercent(usersCurrentMonth.length,usersLastMonth.length)}
                         />
                         <Spacer/>
                         <NbNewReviews value={reviewsCurrentMonth.length}
-                                      percent={compareRevenue(reviewsCurrentMonth.length,reviewsLastMonth.length)}
+                                      percent={compareGetPercent(reviewsCurrentMonth.length,reviewsLastMonth.length)}
                         />
                     </div>
                     <div style={styles.singleCol}>
@@ -217,19 +290,25 @@ const DashBoard = () => {
                 </div>
                 <div style={styles.fullCol}>
                     <div style={styles.leftCol}>
-                        <div>
+                        <div style={styles.singleCol}>
                             <OrderPieChart orders={orders}/>
                         </div>
                         <div style={styles.singleCol}>
-                            <PendingOrders orders={pendingOrders}/>
+                            <BestSeller products={bestSeller}/>
                         </div>
-
+                        <div style={styles.singleCol}>
+                            <PendingReviews reviews={reviews}/>
+                        </div>
                     </div>
                     <div style={styles.rightCol}>
-                        <div style={styles.flex}>
-                            <PendingReviews reviews={reviews}/>
-                            <Spacer/>
-                            <NewCustomers/>
+                        <div style={styles.singleCol}>
+                            <PendingOrders orders={pendingOrders}/>
+                        </div>
+                        <div style={styles.singleCol}>
+                            <OutOfStock products={outOfStock}/>
+                        </div>
+                        <div style={styles.singleCol}>
+                            <NewCustomers loyalCustomers={loyalCustomers}/>
                         </div>
                     </div>
                 </div>
