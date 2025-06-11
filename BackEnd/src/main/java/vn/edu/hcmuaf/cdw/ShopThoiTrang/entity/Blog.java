@@ -28,7 +28,6 @@ public class Blog {
     @Column(name = "created_date")
     private Date createDate;
 
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by")
     private User createBy;

@@ -20,12 +20,11 @@ const ShopSize = ({sizes, setSizes, sizesSelected}: any) => {
                                 </button>
                             </div>
                         </li>
-                        {sizes.map((size : any, key : any) => {
+                        {sizes.map((size: any, key: any) => {
                             return (
                                 <li key={key}>
                                     <div className="sidebar-widget-list-left list-check-size">
                                         <button
-
                                             onClick={e => {
                                                 setActiveSort(e, "", "list-check-size");
                                                 const isActive = e.currentTarget.classList.contains('active');
@@ -52,7 +51,5 @@ const ShopSize = ({sizes, setSizes, sizesSelected}: any) => {
         </div>
     );
 };
-
-
 
 export default ShopSize;

@@ -49,7 +49,6 @@ export const getProductCartQuantity = (cartItems: any[], product: any, color: an
 };
 
 //get products based on category
-
 export const getSortedProducts = (products: any[], colors: string[], sizes: string[], categories: string[], searchValue: string, orderBy: string) => {
     let filteredProducts = [...products];
     if (products.length > 0) {
@@ -78,7 +77,6 @@ export const getSortedProducts = (products: any[], colors: string[], sizes: stri
                 return categories.every(category => arrayCheck.includes(category))
             });
         }
-
         console.log(orderBy)
         if (orderBy === "default") {
             return filteredProducts;
@@ -126,7 +124,6 @@ export const getIndividualCategories = (products: any[]) => {
     return getIndividualItemArray(productCategories);
 };
 
-
 // get individual colors
 export const getIndividualColors = (products: any[]) => {
     let productColors: any[] = [];
@@ -162,6 +159,7 @@ export const getProductsIndividualSizes = (products: any[]) => {
     });
     return getIndividualItemArray(productSizes);
 };
+
 
 export const setActiveSort = (e: any, type: string, list_target: string) => {
     if (type === 'all') {
@@ -201,6 +199,7 @@ export const toggleShopTopFilter = (e: any) => {
     }
     e.currentTarget.classList.toggle("active");
 };
+
 export const formatCurrency = (num: any) => {
     if (isNaN(num)) {
         throw new Error('Input must be a number');

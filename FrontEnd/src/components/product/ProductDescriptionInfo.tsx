@@ -43,7 +43,7 @@ const ProductDescriptionInfo = ({
                     <Fragment>
                         <span>{formatCurrency(finalDiscountedPrice)}</span>{" "}
                         <span className="old">
-               {formatCurrency(finalProductPrice)}
+              {formatCurrency(finalProductPrice)}
             </span>
                     </Fragment>
                 ) : (
@@ -67,8 +67,12 @@ const ProductDescriptionInfo = ({
                             {product.variations.map((single: any, key: any) => {
                                 return (
                                     <label
-                                        className={`pro-details-color-content--single ${single.color}`}
+                                        className={`pro-details-color-content--single`}
                                         key={key}
+                                        style={{
+                                            "border": `1px solid ${single.colorCode}`,
+                                            "backgroundColor": `${single.colorCode}`
+                                        }}
                                     >
                                         <input
                                             type="radio"

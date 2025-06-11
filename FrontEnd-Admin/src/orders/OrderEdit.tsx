@@ -2,7 +2,7 @@ import * as React from 'react';
 import {
     BooleanInput,
     DateField,
-    Edit,ExportButton,
+    Edit, ExportButton,
     Form,
     Labeled,
     PrevNextButtons,
@@ -49,7 +49,7 @@ const CustomerDetails = () => {
                 to={`/user/${record?.id}`}
                 style={{textDecoration: 'none'}}
             >
-                {record?.user.userInfo.fullName} ({record?.user.username})
+                {record?.user?.userInfo?.fullName} ({record?.user?.username})
             </Typography>
             <br/>
             <Typography
@@ -58,7 +58,7 @@ const CustomerDetails = () => {
                 href={`mailto:${record?.email}`}
                 style={{textDecoration: 'none'}}
             >
-                {record?.user.userInfo.email}
+                {record?.user?.userInfo?.email}
             </Typography>
         </div>
     );
@@ -229,11 +229,11 @@ const OrderForm = () => {
                             <Total/>
                         </div>
                     </CardContent>
-                    <Toolbar>Add commentMore actions
+                    <Toolbar>
                         <Button onClick={() => exportOrder(record.id)} color="primary" variant="contained">
                             Xuất đơn hàng
                         </Button>
-                        <Button onClick={() => updateStatus(record.id, statusId)} color="primary" variant="contained">Add commentMore actions
+                        <Button onClick={() => updateStatus(record.id, statusId)} color="primary" variant="contained">
                             Cập nhật trạng thái
                         </Button>
                     </Toolbar>

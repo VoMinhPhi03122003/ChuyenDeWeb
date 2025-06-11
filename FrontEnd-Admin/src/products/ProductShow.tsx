@@ -6,6 +6,7 @@ import {
     Show, SimpleShowLayout, TextField, useRecordContext, useShowContext, useShowController,
 } from 'react-admin';
 import {Grid, Stack, Table, Typography} from "@mui/material";
+import {ColorField} from "react-admin-color-picker";
 
 
 const ProductShow = () => {
@@ -17,17 +18,25 @@ const ProductShow = () => {
             return (currentDate >= startDate && currentDate <= endDate && promotion.status) ? promotion : null;
         });
 
-
-        if (activePromotion !== null) {
+        if (activePromotion !== null && activePromotion !== undefined) {
             const discountedPrice = product.price.price - (product.price.price * activePromotion.discount) / 100;
             return (<div>
-                <span style={{textDecorationLine: "line-through", fontSize: 18, fontWeight: 'bold'}}>{formatPrice(product.price.price)}</span>
+                <span style={{
+                    textDecorationLine: "line-through",
+                    fontSize: 18,
+                    fontWeight: 'bold'
+                }}>{formatPrice(product.price.price)}</span>
                 <br/>
-                <span style={{fontSize: 22, fontWeight: 'bold', color:'red'}}>{formatPrice(discountedPrice)} <span style={{fontSize: 18, fontWeight: 'bold', color:'red'}}>({activePromotion.discount}%)</span> </span>
+                <span style={{fontSize: 22, fontWeight: 'bold', color: 'red'}}>{formatPrice(discountedPrice)} <span
+                    style={{
+                        fontSize: 18,
+                        fontWeight: 'bold',
+                        color: 'red'
+                    }}>({activePromotion.discount}%)</span> </span>
             </div>);
         }
         return (
-            <span style={{fontSize: 22, fontWeight: 'bold', color:'red'}}>{formatPrice(product.price.price)}</span>
+            <span style={{fontSize: 22, fontWeight: 'bold', color: 'red'}}>{formatPrice(product.price.price)}</span>
         );
     };
 
@@ -39,7 +48,12 @@ const ProductShow = () => {
             <Show>
                 <Grid container spacing={2} sx={{margin: 2}}>
                     <Grid item xs={12} sm={4} alignContent={"center"} justifyContent={"center"}>
-                        <ImageField source="imageUrl" textAlign={"center"} label={"Thumbnail"}/>
+                        <ImageField
+                            source="imageUrl"
+                            textAlign={"center"}
+                            label={"Thumbnail"}
+                            sx={{ '& img': { width: "100% !important", height: "100% !important" } }}
+                        />
                     </Grid>
                     <Grid item xs={12} sm={8} sx={{marginBottom: 4}}>
                         <Stack spacing={2}>
@@ -59,7 +73,7 @@ const ProductShow = () => {
                                 label="Danh mục"
                                 render={(record: any) => (
                                     record.categories.map((category: any) => (
-                                        <ChipField record={category} source="name" key={category.id}/>
+                                        <ChipField sx={{margin: "2px"}} record={category} source="name" key={category.id}/>
                                     ))
                                 )}
                             />
@@ -72,14 +86,15 @@ const ProductShow = () => {
                     <Grid item xs={12} sm={10}>
                         <ArrayField source="variations">
                             <Datagrid bulkActionButtons={false}>
-                                <NumberField source="id"/>
-                                <TextField source="color"/>
-                                <ArrayField source="sizes">
+                                <NumberField source="id" label={'Mã sản phẩm'} textAlign={"center"}/>
+                                <TextField source="color" label={'Màu'} textAlign={"center"}/>
+                                <ColorField source="colorCode" label={'Mã Màu'}/>
+                                <ArrayField source="sizes" label={'Các kích thước'} textAlign={'center'}>
                                     <Datagrid bulkActionButtons={false}>
-                                        <NumberField source="id"/>
-                                        <TextField source="size"/>
-                                        <NumberField source="stock"/>
-                                        <BooleanField source="status"/>
+                                        <NumberField source="id" label={'Mã size'} textAlign={"center"}/>
+                                        <TextField source="size" label='Size' textAlign={"center"}/>
+                                        <NumberField source="stock" label='Tồn kho' textAlign={"center"}/>
+                                        <BooleanField source="status" label={'Trạng thái'} textAlign={"center"}/>
                                     </Datagrid>
                                 </ArrayField>
                             </Datagrid>
@@ -96,4 +111,7 @@ const ProductShow = () => {
         </>
     );
 };
+
+
+
 export default ProductShow;

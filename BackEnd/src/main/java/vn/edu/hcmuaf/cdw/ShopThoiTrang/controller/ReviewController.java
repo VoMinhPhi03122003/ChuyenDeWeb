@@ -19,10 +19,8 @@ public class ReviewController {
     private ReviewService reviewService;
 
     @PostMapping
-    public ResponseEntity<Review> updateReview(@PathVariable Long id, @RequestBody Object type) {
-        LinkedHashMap<String, Integer> map;
-        map = (LinkedHashMap<String, Integer>) type;
-        Review updatedReview = reviewService.updateReview(id, map.get("type"));
+    public ResponseEntity<Review> createReview(@RequestBody ReviewRequest review) {
+        Review createdReview = reviewService.createReview(review);
         return ResponseEntity.ok(createdReview);
     }
 
@@ -31,6 +29,7 @@ public class ReviewController {
         List<Review> reviews = reviewService.getReviewsByProductId(productId);
         return ResponseEntity.ok(reviews);
     }
+
     @GetMapping
     public ResponseEntity<Page<Review>> getAllReviews(@RequestParam(defaultValue = "0") int start,
                                                       @RequestParam(defaultValue = "{}") String filter,
@@ -54,8 +53,10 @@ public class ReviewController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Review> updateReview(@PathVariable Long id, @RequestBody Review review) {
-        Review updatedReview = reviewService.updateReview(id, review);
+    public ResponseEntity<Review> updateReview(@PathVariable Long id, @RequestBody Object type) {
+        LinkedHashMap<String, Integer> map;
+        map = (LinkedHashMap<String, Integer>) type;
+        Review updatedReview = reviewService.updateReview(id, map.get("type"));
         return ResponseEntity.ok(updatedReview);
     }
 

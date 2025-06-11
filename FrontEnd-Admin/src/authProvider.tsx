@@ -31,13 +31,13 @@ httpClient.interceptors.response.use(
             if (error.response.status === 400) {
                 // @ts-ignore
                 authProvider.logout();
+                window.location.href = '/#/login';
                 return Promise.reject({message: "Your session is expired. Please login again."});
             }
             return Promise.reject({message: "There was an error. Please try again."});
         }
     }
 )
-
 export const authProvider: AuthProvider = {
 
     login: async ({username, password}) => {
@@ -84,9 +84,7 @@ export const authProvider: AuthProvider = {
             if (response.status === 200) {
                 return Promise.resolve(response.data);
             }
-
         })
-
     },
     //@ts-ignore
     getIdentity: async () => {

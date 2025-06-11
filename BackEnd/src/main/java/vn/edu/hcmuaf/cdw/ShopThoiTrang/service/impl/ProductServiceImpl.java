@@ -216,7 +216,6 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public ResponseEntity<?> updateProduct(long productId, Product productUpdate, HttpServletRequest request) {
         Date currentDate = new Date(System.currentTimeMillis());
-
         String jwt = jwtUtils.getJwtFromCookies(request);
         if (jwt == null) {
             return ResponseEntity.badRequest().body("Token is null");
@@ -247,7 +246,6 @@ public class ProductServiceImpl implements ProductService {
                 newImageProducts.add(existingImageProduct);
             }
         }
-
         // Xóa các ảnh không còn tồn tại
         for (ImageProduct existingImageProduct : existingProduct.getImgProducts()) {
             if (!newImageProducts.isEmpty() && newImageProducts.stream()
@@ -280,6 +278,7 @@ public class ProductServiceImpl implements ProductService {
             if (existingVariation != null) {
                 // Cập nhật biến thể
                 existingVariation.setColor(updatedVariation.getColor());
+                existingVariation.setColorCode(updatedVariation.getColorCode());
                 existingVariation.setUpdateDate(currentDate);
                 existingVariation.setUpdateBy(userRepository.findByUsername(username).orElse(null));
                 updateSizes(existingVariation, updatedVariation.getSizes());
@@ -299,6 +298,7 @@ public class ProductServiceImpl implements ProductService {
                         size.setStatus(size.isStatus());
                         size.setStock(size.getStock());
                         size.setUpdateDate(currentDate);
+                        size.setReleaseDate(currentDate);
                         size.setReleaseBy(userRepository.findByUsername(username).orElse(null));
                         size.setUpdateBy(userRepository.findByUsername(username).orElse(null));
                         Variation savedVariation = variationRepository.save(variation);

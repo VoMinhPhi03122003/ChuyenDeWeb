@@ -6,7 +6,9 @@ import axios from "axios";
 import {Rating} from "@mui/material";
 
 const ProductDescriptionTab = ({spaceBottomClass, productFullDesc, product, reviews}: any) => {
+
     console.log(reviews);
+
     return (
         <div className={`description-review-area ${spaceBottomClass}`}>
             <div className="container">
@@ -80,16 +82,12 @@ const ProductDescriptionTab = ({spaceBottomClass, productFullDesc, product, revi
                                                                 </div>
                                                             </div>
                                                         </div>
-
                                                     </div>
                                                 </div>
 
-                                                            </div>
-                                                        </div>
-
                                             )
 
-                                            ))}
+                                        ))}
                                     </div>
                                 </div>
                             </Tab.Pane>

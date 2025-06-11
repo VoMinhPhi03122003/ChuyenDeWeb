@@ -4,8 +4,7 @@ import SectionTitle from "../../components/section-title/SectionTitle";
 import axios from "axios";
 
 const Blog = ({spaceTopClass, spaceBottomClass}: any) => {
-
-    const [blogData, setBlogData] = useState([]);Add commentMore actions
+    const [blogData, setBlogData] = useState([]);
     useEffect(() => {
         const fetchData = async () => {
             await axios.get(`${process.env.REACT_APP_API_ENDPOINT}blog/user`)
@@ -18,6 +17,7 @@ const Blog = ({spaceTopClass, spaceBottomClass}: any) => {
         }
         fetchData();
     }, []);
+
     return (
         <div
             className={`blog-area ${spaceTopClass ? spaceTopClass : ""} ${

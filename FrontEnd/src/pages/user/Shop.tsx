@@ -20,14 +20,11 @@ const Shop = ({products}: any) => {
     const [sortedProducts, setSortedProducts] = useState([]);
     const [searchValue, setSearchValue] = useState('');
     const [orderBy, setOrderBy] = useState('default');
-
     const pageLimit = 15;
 
     const getLayout = (layout: any) => {
         setLayout(layout)
     }
-
-
 
     useEffect(() => {
         let sortedProducts: any = products.filter((product: any) => product.name.toLowerCase().includes(searchValue.toLowerCase()));
@@ -47,6 +44,7 @@ const Shop = ({products}: any) => {
                 <div className="container">
                     <div className="row">
                         <div className="col-lg-3 order-2 order-lg-1">
+
                             <ShopSidebar products={products} setColors={setColors} setSizes={setSizes} sizes={sizes}
                                          colors={colors} categories={categories}
                                          setCategories={setCategories}
@@ -57,9 +55,7 @@ const Shop = ({products}: any) => {
                             <ShopTopbar getLayout={getLayout} setOrderBy={setOrderBy}
                                         productCount={sortedProducts.length} sortedProductCount={currentData.length}/>
 
-
                             <ShopProducts layout={layout} products={currentData}/>
-
 
                             <div className="pro-pagination-style text-center mt-30">
                                 <Paginator

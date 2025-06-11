@@ -1,5 +1,4 @@
 import React from "react";
-
 import ShopSearch from "./ShopSearch";
 import ShopCategories from "./ShopCategories";
 import ShopColor from "./ShopColor";
@@ -32,9 +31,7 @@ const ShopSidebar = ({
             <ShopCategories categories={uniqueCategories} setCategories={setCategories}
                             categoriesSelected={categories}/>
 
-
             <ShopColor colors={uniqueColors} setColors={setColors} colorsSelected={colors}/>
-
 
             <ShopSize sizes={uniqueSizes} setSizes={setSizes} sizesSelected={sizes}/>
 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {Admin, Login, Resource} from 'react-admin';
+import {Admin, houseLightTheme, Login, radiantLightTheme, Resource} from 'react-admin';
 import {dataProvider} from "./dataProvider/dataProvider";
 import UserList from "./users/UserList";
 import {authProvider} from "./authProvider";
@@ -33,6 +33,7 @@ import PromotionEdit from "./promotion/PromotionEdit";
 import PromotionCreate from "./promotion/PromotionCreate";
 import ReviewList from "./reviews/ReviewList";
 import ReviewEdit from "./reviews/ReviewEdit";
+import DashBoard from "./Dashboard/DashBoard";
 
 const App = () => {
     return (
@@ -41,7 +42,9 @@ const App = () => {
             loginPage={Login}
             title="Admin"
             dataProvider={dataProvider}
+            theme={radiantLightTheme}
             disableTelemetry
+            dashboard={DashBoard}
         >
             <Resource name="user"
                       list={UserList}

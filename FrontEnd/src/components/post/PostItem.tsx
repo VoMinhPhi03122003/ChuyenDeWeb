@@ -2,7 +2,6 @@ import React from "react";
 import {Link} from "react-router-dom";
 
 const PostItem = ({post}: any) => {
-
     const postRef = React.createRef();
     return (
         <div className="col-lg-6 col-md-6 col-sm-12">
@@ -40,7 +39,6 @@ const PostItem = ({post}: any) => {
                                 Xem thêm
                             </Link>
                         </div>
-
                     </div>
                 </div>
             </div>

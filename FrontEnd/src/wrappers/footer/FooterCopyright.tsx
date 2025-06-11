@@ -15,7 +15,7 @@ const FooterCopyright = ({footerLogo, spaceBottomClass, colorClass}: any) => {
                 </Link>
             </div>
             <p>
-                © 2025{" "}
+                © 2024{" "}
                 <a href="https://hcmuaf.edu.vn" rel="noopener noreferrer" target="_blank">
                     NLU
                 </a>

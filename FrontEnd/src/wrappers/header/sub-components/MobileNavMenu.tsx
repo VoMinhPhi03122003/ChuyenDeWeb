@@ -6,7 +6,6 @@ const MobileNavMenu = ({categories}: any) => {
     return (
         <nav className="offcanvas-navigation" id="offcanvas-navigation">
             <ul>
-
                 <li>
                     <Link to={"/about"}>
                         Giới thiệu
@@ -29,7 +28,6 @@ const MobileNavMenu = ({categories}: any) => {
                 <li>
                     <Link to={"/contact"}>
                         Liên hệ
-                        {["contact_us"]}
                     </Link>
                 </li>
             </ul>
