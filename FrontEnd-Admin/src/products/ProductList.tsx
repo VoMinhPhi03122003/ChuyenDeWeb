@@ -6,7 +6,7 @@ import {
     FunctionField,
     EditButton,
     ChipField,
-    SearchInput, DateInput, SelectColumnsButton, DatagridConfigurable, useRecordContext, WrapperField, ArrayField,
+    SearchInput, DateInput, SelectColumnsButton, DatagridConfigurable, useRecordContext,
 } from 'react-admin';
 
 import {
@@ -28,9 +28,9 @@ const visitorFilters = [
 
 const VisitorListActions = () => (
     <TopToolbar>
-        <CreateButton/>
+        <CreateButton label="Tạo sản phẩm"/>
         <SelectColumnsButton/>
-        <ExportButton/>
+        {/*<ExportButton/>*/}
     </TopToolbar>
 );
 
@@ -85,7 +85,12 @@ const ProductList = () => {
             ) : (
                 <DatagridConfigurable
                     rowClick="show"
-                    bulkActionButtons={false}
+                    bulkActionButtons={
+                        <>
+                            <BulkUpdateButton data={{status: false}} label="Ẩn hết tất cả sản phẩm đã chọn"/>
+                            <BulkDeleteButton label={"Xoá"}/>
+                        </>
+                    }
                 >
                     {/*<Test/>*/}
                     <NumberField source="id" label="ID"/>
@@ -97,7 +102,7 @@ const ProductList = () => {
                         label="Danh mục"
                         render={(record: any) => (
                             record.categories.map((category: any) => (
-                                <ChipField record={category} source="name" key={category.id}/>
+                                <ChipField sx={{margin:"2px"}} record={category} source="name" key={category.id}/>
                             ))
                         )}
                     />
@@ -109,9 +114,8 @@ const ProductList = () => {
                         sortable
                     />
 
-                    <ArrayField label="Hành động">
-                        <EditButton/>
-                    </ArrayField>
+
+                    <EditButton/>
                 </DatagridConfigurable>
             )}
         </List>

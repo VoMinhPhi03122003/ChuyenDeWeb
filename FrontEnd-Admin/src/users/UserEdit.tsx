@@ -17,11 +17,11 @@ import {
 import {Grid, Box, Typography} from '@mui/material';
 
 import FullNameField from './FullNameField';
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useState} from "react";
 import {checkPassword} from "./UserCreate";
 import {useWatch} from 'react-hook-form';
 
-export const ReturnedImg = () => {
+const ReturnedImg = () => {
     const isReturned = useWatch({name: 'userInfo.avtUrl'});
     return isReturned ?
         <>
@@ -56,12 +56,10 @@ export const ReturnedImg = () => {
 
 const ReturnedRole = (props: any) => {
     const isReturned = useWatch({name: 'role.id'});
-    useEffect(() => {
-        if (isReturned === 1 || isReturned === null || isReturned === undefined) {
-            props.setAdmin(false)
-        } else
-            props.setAdmin(true)
-    }, [isReturned, props]);
+    if (isReturned === 1 || isReturned === null || isReturned === undefined) {
+        props.setAdmin(false)
+    } else
+        props.setAdmin(true)
     return (
         <ReferenceInput label="Role" source="role.id" reference="role">
             <AutocompleteInput label={"Loại tài khoản"} optionText={"name"} optionValue={"id"}

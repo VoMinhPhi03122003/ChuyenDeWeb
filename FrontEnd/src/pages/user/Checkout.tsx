@@ -130,7 +130,6 @@ const Checkout = ({cartItems, deleteAllFromCart}: any) => {
         }
         getProvinces();
     }, []);
-
     const postOrderGHN = async (payment_type: any) => {
         return await axios.post(process.env.REACT_APP_GHN_FEE_API + "create",
             {
@@ -194,13 +193,6 @@ const Checkout = ({cartItems, deleteAllFromCart}: any) => {
                 }
             ));
             console.log(orderDetails)
-            if (name === "" || phone === "" || address === "" ||
-                selectedProvince === null || selectedDistrict === null
-                || selectedWard === null) {
-                toast.error("Vui lòng nhập đầy đủ thông tin khách hàng")
-                setIsLoading(false)
-                return;
-            }
             let dataCart = {
                 id: unixTimestamp,
                 name: name,
@@ -208,7 +200,7 @@ const Checkout = ({cartItems, deleteAllFromCart}: any) => {
                 user_id: userId !== -1 ? userId : null,
                 province: selectedProvince.name,
                 district: selectedDistrict.name,
-                ward: selectedWard.name ? selectedWard.name : "",
+                ward: selectedWard.name,
                 address: address,
                 paymentMethod: paymentType,
                 paymentCode: "",
@@ -221,6 +213,13 @@ const Checkout = ({cartItems, deleteAllFromCart}: any) => {
                 status: 1,
                 orderDetails: orderDetails,
             };
+            if (name === "" || phone === "" || address === "" ||
+                selectedProvince === null || selectedDistrict === null
+                || selectedWard === null) {
+                toast.error("Vui lòng nhập đầy đủ thông tin khách hàng")
+                setIsLoading(false)
+                return;
+            }
             let shipping_create_status = false;
             switch (paymentType) {
                 case 'cod':

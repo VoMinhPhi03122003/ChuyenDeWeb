@@ -17,6 +17,7 @@ public class PayOSController {
 
     @PostMapping
     public ResponseEntity<String> payOSPOST(@RequestBody Object object) {
+        System.out.println(object.toString());
         LinkedHashMap<String, Object> map;
         map = (LinkedHashMap<String, Object>) object;
         if (!map.containsKey("success")) {

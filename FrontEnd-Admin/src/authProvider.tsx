@@ -20,7 +20,6 @@ httpClient.interceptors.response.use(
                 console.log(response)
                 Promise.resolve();
             }).catch((error) => {
-                console.log(error)
                 if (error.response.status === 400) {
                     // @ts-ignore
                     authProvider.logout();
@@ -29,10 +28,9 @@ httpClient.interceptors.response.use(
                 }
             });
         } else {
-            console.log(error)
             if (error.response.status === 400) {
                 // @ts-ignore
-                await authProvider.logout();
+                authProvider.logout();
                 window.location.href = '/#/login';
                 return Promise.reject({message: "Your session is expired. Please login again."});
             }
@@ -84,33 +82,29 @@ export const authProvider: AuthProvider = {
             withCredentials: true
         }).then((response) => {
             if (response.status === 200) {
-                console.log(response.data)
-                return Promise.resolve([response.data]);
+                return Promise.resolve(response.data);
             }
         })
     },
+    //@ts-ignore
     getIdentity: async () => {
-        return await httpClient.get(`${process.env.REACT_APP_API_URL}/user/info`, {
+        await httpClient.get(`${process.env.REACT_APP_API_URL}/user/info`, {
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json'
             },
             withCredentials: true
         }).then((response: any) => {
-            return Promise.resolve({
-                id: response.data.user.id,
-                fullName: response.data.fullName,
-                email: response.data.email,
-                phone: response.data.phone,
-                avatar: response.data.avtUrl,
-                userInfo: {
-                    id: response.data.user.id,
-                    fullName: response.data.fullName,
-                    email: response.data.email,
-                    phone: response.data.phone,
-                    avtUrl: response.data.avtUrl,
-                }
-            });
+            console.log(response)
+            if (response.status === 200) {
+                return Promise.resolve({
+                    id: "admin",
+                    fullName: response.fullName,
+                    email: response.email,
+                    phone: response.phone,
+                    avt: response.avtUrl
+                });
+            } else console.log(response.status)
         })
     }
 }
