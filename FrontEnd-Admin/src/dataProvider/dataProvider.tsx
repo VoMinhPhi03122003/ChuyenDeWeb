@@ -10,7 +10,7 @@ const httpClient = axios.create({
 httpClient.interceptors.response.use(
     response => response,
     async error => {
-        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+        if (error.response && (error.response.status === 401)) {
             await httpClient.post(`${process.env.REACT_APP_API_URL}/auth/refresh-token`, {
                 headers: {
                     Accept: 'application/json',
@@ -134,14 +134,16 @@ export const dataProvider: DataProvider = {
         return Promise.resolve({data: result})
     },
     getManyReference: (resource: any, params: any) => Promise.resolve({data: []}),
-    // @ts-ignore
     create: async (resource: any, params: any) => {
-        if (params.data.imageUrl === undefined || params.data.imageUrl === null) {
-            return Promise.reject({message: "Ảnh chính không được để trống"});
+        if (resource !== 'import-invoice') {
+            if (params.data.imageUrl === undefined || params.data.imageUrl === null) {
+                return Promise.reject({message: "Ảnh chính không được để trống"});
+            }
+            if (params.data.imgProducts !== undefined && params.data.imgProducts !== null && params.data.imgProducts.length > 4) {
+                return Promise.reject({message: "Số lượng ảnh phụ không được vượt quá 4 ảnh"});
+            }
         }
-        if (params.data.imgProducts !== undefined && params.data.imgProducts !== null && params.data.imgProducts.length > 4) {
-            return Promise.reject({message: "Số lượng ảnh phụ không được vượt quá 4 ảnh"});
-        }
+
         let avtUrl = null;
         let categories = null;
         let role = null;
@@ -233,8 +235,8 @@ export const dataProvider: DataProvider = {
                 avtUrl = await imgProvider(selectedImg);
             }
         }
-        await httpClient.post(`${process.env.REACT_APP_API_URL}/${resource}`, {
-            body: JSON.stringify(resource === "import-invoice" ? params.data.ImportInvoiceRequest
+        return await httpClient.post(`${process.env.REACT_APP_API_URL}/${resource}`,
+            JSON.stringify(resource === "import-invoice" ? params.data.ImportInvoiceRequest
                 : (categories !== null ? {
                     ...params.data,
                     categories: categories,
@@ -253,17 +255,21 @@ export const dataProvider: DataProvider = {
                     })) : []
                 } : params.data))),
 
-            headers: new Headers({
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-            }),
-            credentials: 'include'
-        }).then((response: any) => {
-            if (response.status < 200 || response.status >= 300) {
-                return Promise.reject({message: response.data});
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                },
+                withCredentials: true
+            }).then((response: any) => {
+            if (response.status === 200) {
+                console.log(response.data[0])
+                window.location.href = `/#/${resource}`;
+                return Promise.resolve({data: response.data[0]});
             }
+            console.log(response.data[0])
             window.location.href = `/#/${resource}`;
-            return Promise.resolve({data: response.data});
+            return Promise.resolve({data: {id: response.data[0].id}});
         })
     },
     update: async (resource: any, params: any) => {

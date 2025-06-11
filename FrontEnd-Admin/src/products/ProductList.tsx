@@ -6,7 +6,7 @@ import {
     FunctionField,
     EditButton,
     ChipField,
-    SearchInput, DateInput, SelectColumnsButton, DatagridConfigurable,
+    SearchInput, DateInput, SelectColumnsButton, DatagridConfigurable, useRecordContext, WrapperField, ArrayField,
 } from 'react-admin';
 
 import {
@@ -20,7 +20,6 @@ import {
 import {Theme, useMediaQuery} from "@mui/material";
 import Aside from "./Aside";
 import MobileProductGrid from "./MobileProductGrid";
-import {render} from "@testing-library/react";
 
 const visitorFilters = [
     <SearchInput alwaysOn name={"search"} source={"filter"}/>,
@@ -56,7 +55,7 @@ const ProductList = () => {
             return (<div>
                 <span style={{textDecorationLine: "line-through"}}>{formatPrice(product.price.price)}</span>
                 <br/>
-                <span style={{color:'red'}}>{formatPrice(discountedPrice)}</span>
+                <span style={{color: 'red'}}>{formatPrice(discountedPrice)}</span>
             </div>);
         }
         return (
@@ -67,7 +66,12 @@ const ProductList = () => {
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat('vi-VN', {style: 'currency', currency: 'VND'}).format(price);
     }
-
+    const Test = () => {
+        const record = useRecordContext();
+        if (!record) return null;
+        console.log(record);
+        return null;
+    };
     return (
         <List
             filters={isSmall ? visitorFilters : undefined}
@@ -81,13 +85,9 @@ const ProductList = () => {
             ) : (
                 <DatagridConfigurable
                     rowClick="show"
-                    bulkActionButtons={
-                        <>
-                            <BulkUpdateButton data={{status: false}} label="Ẩn hết tất cả sản phẩm đã chọn"/>
-                            <BulkDeleteButton label={"Xoá"}/>
-                        </>
-                    }
+                    bulkActionButtons={false}
                 >
+                    {/*<Test/>*/}
                     <NumberField source="id" label="ID"/>
                     <ImageField sx={{m: "auto"}} className={"cent"} source="imageUrl" label="Ảnh"/>
                     <TextField source="name" label="Tên SP"/>
@@ -104,11 +104,14 @@ const ProductList = () => {
 
                     <FunctionField
                         label="Giá"
+                        source="price"
                         render={(record: any) => getPromotionPrice(record)}
+                        sortable
                     />
 
-
-                    <EditButton/>
+                    <ArrayField label="Hành động">
+                        <EditButton/>
+                    </ArrayField>
                 </DatagridConfigurable>
             )}
         </List>
