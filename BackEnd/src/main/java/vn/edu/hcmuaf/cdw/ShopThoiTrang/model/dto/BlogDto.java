@@ -1,7 +1,5 @@
 package vn.edu.hcmuaf.cdw.ShopThoiTrang.model.dto;
 
-
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

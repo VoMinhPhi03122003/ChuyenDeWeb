@@ -17,5 +17,4 @@ const ShopSearch = ({setSearchValue}: any) => {
     );
 }
 
-
 export default ShopSearch;

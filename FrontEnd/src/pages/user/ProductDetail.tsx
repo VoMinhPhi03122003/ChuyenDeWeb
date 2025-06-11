@@ -19,6 +19,7 @@ const ProductDetail = () => {
     );
     if (product.imgProducts.find((item: any) => item.url === product.imageUrl) === undefined)
         product.imgProducts.push({url: product.imageUrl});
+
     const [reviews, setReviews] = useState([]);
     useEffect(() => {
         const fectch = async () => {
@@ -33,6 +34,7 @@ const ProductDetail = () => {
         }
         fectch();
     }, []);
+
     return (
         <Fragment>
             <Breadcrumb/>

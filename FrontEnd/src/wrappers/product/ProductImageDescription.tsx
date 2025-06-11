@@ -6,6 +6,7 @@ import ProductDescriptionInfo from "../../components/product/ProductDescriptionI
 import {connect} from "react-redux";
 
 const ProductImageDescription = ({spaceTopClass, spaceBottomClass, product, cartItems, wishlistItems, reviews}: any) => {
+    const wishlistItem = wishlistItems.filter(
         (wishlistItem: any) => wishlistItem.id === product.id
     )[0];
     const {addToast} = useToasts();

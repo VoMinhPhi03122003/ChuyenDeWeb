@@ -1,5 +1,4 @@
 import React from "react";
-
 import {setActiveSort} from "../../helpers/product";
 
 const ShopCategories = ({categories, setCategories, categoriesSelected}: any) => {
@@ -35,7 +34,6 @@ const ShopCategories = ({categories, setCategories, categoriesSelected}: any) =>
                                                 }
                                             }}
                                         >
-
                                             <span className="checkmark"/> {category.name}{" "}
                                         </button>
                                     </div>
@@ -50,6 +48,5 @@ const ShopCategories = ({categories, setCategories, categoriesSelected}: any) =>
         </div>
     );
 };
-
 
 export default ShopCategories;

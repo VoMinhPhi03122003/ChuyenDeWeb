@@ -61,6 +61,7 @@ public class ReviewServiceImpl implements ReviewService {
     public List<Review> getReviewsByProductId(Long productId) {
         return reviewRepository.findAllByProductIdAndType(productId, 2);
     }
+
     @Override
     public Page<Review> getAllReviews(String filter, int start, int end, String sortBy, String order) {
         Sort.Direction direction = Sort.Direction.ASC;

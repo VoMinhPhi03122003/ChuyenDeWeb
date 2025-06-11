@@ -35,6 +35,7 @@ const PaymentResultPayOS = ({deleteAllFromCart}: any) => {
                 let parsedOrderBody = JSON.parse(orderBody);
                 setOrderInfo(parsedOrderBody.map((item: any) => `${item.name} - SL: ${item.quantity} x ${item.price} đ`));
                 console.log(parsedOrderBody)
+
                 axios.post(`${process.env.REACT_APP_API_ENDPOINT}order`, parsedOrder, {
                     headers: {
                         'Content-Type': 'application/json',
@@ -80,7 +81,6 @@ const PaymentResultPayOS = ({deleteAllFromCart}: any) => {
             }
         }
     }, []);
-
     return (
         <div>
             <div className="error404-area ptb-100 ptb-sm-60">
@@ -115,7 +115,7 @@ const PaymentResultPayOS = ({deleteAllFromCart}: any) => {
                                 </div>
 
                                 <div className="error-button">
-                                <Link to={"/home"} className="btn btn-primary">Quay về trang chủ</Link>
+                                    <Link to={"/home"} className="btn btn-primary">Quay về trang chủ</Link>
                                 </div>
                             </div>
                         </div>

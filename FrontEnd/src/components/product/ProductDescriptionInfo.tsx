@@ -43,7 +43,7 @@ const ProductDescriptionInfo = ({
                     <Fragment>
                         <span>{formatCurrency(finalDiscountedPrice)}</span>{" "}
                         <span className="old">
-               {formatCurrency(finalProductPrice)}
+              {formatCurrency(finalProductPrice)}
             </span>
                     </Fragment>
                 ) : (

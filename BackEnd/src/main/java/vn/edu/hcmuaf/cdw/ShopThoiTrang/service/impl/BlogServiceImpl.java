@@ -3,7 +3,6 @@ package vn.edu.hcmuaf.cdw.ShopThoiTrang.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,6 +19,7 @@ import java.sql.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.domain.Specification;
+
 import static vn.edu.hcmuaf.cdw.ShopThoiTrang.model.mapper.BlogMapper.toBlogDto;
 
 
@@ -64,6 +64,7 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public List<BlogDto> getBlogsStatusTrue() {
+
         return toBlogDto(blogRepository.findAllByStatusTrue());
     }
 

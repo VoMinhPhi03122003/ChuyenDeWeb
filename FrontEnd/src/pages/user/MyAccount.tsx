@@ -1,4 +1,3 @@
-
 import React, {Fragment, useEffect, useState} from "react";
 import Accordion from "react-bootstrap/Accordion";
 import Image from 'react-bootstrap/Image';
@@ -10,10 +9,10 @@ import {Navigate} from "react-router-dom";
 import {Rating, TextField} from "@mui/material";
 import {forEach} from "react-bootstrap/ElementChildren";
 
-
 const MyAccount = () => {
     const {addToast} = useToasts();
     const user: any = localStorage.getItem('user');
+
     const idUser: any = JSON.parse(user) ? JSON.parse(user).id : null;
     const [showOrderDetailModal, setshowOrderDetailModal] = useState(false);
     const [showOrderStatusModal, setshowOrderStatusModal] = useState(false);
@@ -30,12 +29,14 @@ const MyAccount = () => {
     const [oldPassword, setOldPassword] = useState('');
 
     const [userProfile, setUserProfile]: any = useState(null);
+
     const checkUser = () => {
         if (!user)
             return <Navigate to={'/login-register'}/>
     }
 
     checkUser();
+
     useEffect(() => {
         const fetchUserProfile = async () => {
             await axios.get(`${process.env.REACT_APP_API_ENDPOINT}user/${idUser}`, {
@@ -49,6 +50,7 @@ const MyAccount = () => {
         }
         fetchUserProfile().then();
     }, []);
+
     console.log(userProfile)
 
     const displaySelectedImage = (event: any) => {
@@ -61,6 +63,7 @@ const MyAccount = () => {
             reader.onload = function (e: any) {
                 selectedImage.src = e.target.result;
             };
+
             reader.readAsDataURL(fileInput.files[0]);
         }
     };
@@ -108,7 +111,7 @@ const MyAccount = () => {
                 autoDismissTimeout: 3000
             });
         }).catch(error => {
-            console.log(response)
+            console.log(error)
             addToast("Cập nhật thông tin thất bại", {appearance: 'error', autoDismiss: true, autoDismissTimeout: 3000});
         });
     }
@@ -157,6 +160,7 @@ const MyAccount = () => {
             }
         )
     }
+
     const checkReview = (order: any) => {
         for (let i = 0; i < order.orderDetails.length; i++) {
             if (order.orderDetails[i].review == null) {
@@ -165,6 +169,7 @@ const MyAccount = () => {
         }
         return false;
     }
+
 
     return (
         userProfile &&
@@ -318,7 +323,7 @@ const MyAccount = () => {
                                                                     }}
                                                                     > Đánh giá </Button>
                                                                 )}
-                                                                {order.status.id === 5 && !checkReview(order) && (
+                                                                {order.status.id === 5 && !checkReview(order)  && (
                                                                     <Button variant="outline-info" onClick={() => {
                                                                         setshowOrderReviewModal(true);
                                                                         setOrderDetail(order);
@@ -340,6 +345,7 @@ const MyAccount = () => {
                     </div>
                 </div>
             </Fragment>
+
             {/* Modal Order Detail */}
             <Modal
                 show={showOrderDetailModal}
@@ -409,6 +415,7 @@ const MyAccount = () => {
         </>
     );
 };
+
 const formatStatus = (status: any) => {
     let style: {};
 
@@ -574,6 +581,7 @@ const OrderDetailModal = ({order}: any) => {
     );
 
 }
+
 const OrderReviewModal = ({order, addToast}: any) => {
     const user: any = localStorage.getItem('user');
 
@@ -704,7 +712,5 @@ const OrderReviewModal = ({order, addToast}: any) => {
         </>
     );
 }
-
-
 
 export default MyAccount;

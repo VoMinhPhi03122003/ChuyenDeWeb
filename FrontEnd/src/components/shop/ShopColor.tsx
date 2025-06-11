@@ -1,5 +1,4 @@
 import React from "react";
-
 import {setActiveSort} from "../../helpers/product";
 
 const ShopColor = ({colors, setColors, colorsSelected}: any) => {
@@ -21,7 +20,7 @@ const ShopColor = ({colors, setColors, colorsSelected}: any) => {
                                 </button>
                             </div>
                         </li>
-                        {colors.map((color : any, key : any) => {
+                        {colors.map((color: any, key: any) => {
                             return (
                                 <li key={key}>
                                     <div className="sidebar-widget-list-left list-check-color">
@@ -50,7 +49,5 @@ const ShopColor = ({colors, setColors, colorsSelected}: any) => {
         </div>
     );
 };
-
-
 
 export default ShopColor;

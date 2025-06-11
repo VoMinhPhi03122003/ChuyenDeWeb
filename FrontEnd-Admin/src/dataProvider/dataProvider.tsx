@@ -8,7 +8,7 @@ const httpClient = axios.create({
 });
 
 httpClient.interceptors.response.use(
-response => response,
+    response => response,
     async error => {
         if (error.response && (error.response.status === 401 || error.response.status === 403)) {
             await httpClient.post(`${process.env.REACT_APP_API_URL}/auth/refresh-token`, {
@@ -55,7 +55,6 @@ async function getBase64(file: any) {
 export const dataProvider: DataProvider = {
     // @ts-ignore
     getList: async (resource: any, params: any) => {
-
         const {page, perPage} = params.pagination;
         const {field, order} = params.sort;
         const query = {
@@ -79,9 +78,9 @@ export const dataProvider: DataProvider = {
 
         return {
             data: resource !== 'product' ? resource !== 'user' ?
-            json.content :
+                    json.content :
                     json.content.map((item: any) => ({
-                                                         ...item,
+                        ...item,
                         resourceVariations: [
                             ...item.resourceVariations.map((cat: any) => ({
                                 ...cat,
@@ -98,15 +97,16 @@ export const dataProvider: DataProvider = {
                 })),
             total: parseInt(json.totalElements, 10),
         };
-                                                     },
+
+    },
     getOne: async (resource: any, params: any) =>
-    await httpClient.get(`${process.env.REACT_APP_API_URL}/${resource}/${params.id}`, {
-        headers: {
+        await httpClient.get(`${process.env.REACT_APP_API_URL}/${resource}/${params.id}`, {
+            headers: {
                 'Content-Type': 'application/json',
                 Accept: 'application/json',
-        },
-        withCredentials: true,
-    }).then((response) => {
+            },
+            withCredentials: true,
+        }).then((response) => {
             return ({
                 data: resource === 'product' ? {
                     ...response.data,
@@ -115,9 +115,7 @@ export const dataProvider: DataProvider = {
                     ...response.data,
                 } : response.data
             })
-
         }),
-
     getMany: async (resource: any, params: any) => {
         const ids = params.ids.map((cate: object | any) => typeof cate === "object" ? cate.id : cate)
         const query = {
@@ -144,7 +142,6 @@ export const dataProvider: DataProvider = {
         if (params.data.imgProducts !== undefined && params.data.imgProducts !== null && params.data.imgProducts.length > 4) {
             return Promise.reject({message: "Số lượng ảnh phụ không được vượt quá 4 ảnh"});
         }
-
         let avtUrl = null;
         let categories = null;
         let role = null;
@@ -179,7 +176,6 @@ export const dataProvider: DataProvider = {
                         updateBy: null,
                     });
                 }
-
             }
             const query = {
                 ids: JSON.stringify({ids: params.data.categories}),
@@ -270,7 +266,6 @@ export const dataProvider: DataProvider = {
             return Promise.resolve({data: response.data});
         })
     },
-
     update: async (resource: any, params: any) => {
         let categories = null;
         let role = null;
@@ -326,7 +321,7 @@ export const dataProvider: DataProvider = {
             const query = {
                 ids: JSON.stringify({ids: params.data.role}),
             };
-            await httpClient.get(`${process.env.REACT_APP_API_URL}/role/ids?${fetchUtils.queryParameters(query)}`, {Add commentMore actions
+            await httpClient.get(`${process.env.REACT_APP_API_URL}/role/ids?${fetchUtils.queryParameters(query)}`, {
                 headers: {
                     'Content-Type': 'application/json',
                     Accept: 'application/json',
@@ -338,7 +333,7 @@ export const dataProvider: DataProvider = {
             const query1 = {
                 ids: JSON.stringify({ids: params.data.resourceVariations.map((item: any) => item.resource.id)}),
             };
-            await httpClient.get(`${process.env.REACT_APP_API_URL}/resource/ids?${fetchUtils.queryParameters(query1)}`, {Add commentMore actions
+            await httpClient.get(`${process.env.REACT_APP_API_URL}/resource/ids?${fetchUtils.queryParameters(query1)}`, {
                 headers: {
                     'Content-Type': 'application/json',
                     Accept: 'application/json',
@@ -389,14 +384,14 @@ export const dataProvider: DataProvider = {
                         resource: resourceUser.find((resource: any) => resource.id === item.resource.id),
                         permissions: item.permissions.map((item: any) => permissions.find((cat: any) => cat.id === item.id))
                     })) : []
-                } : params.data)f
+                } : params.data))
             , {
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            withCredentials: true
-        }).then((response: any) => {
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                withCredentials: true
+            }).then((response: any) => {
             result = response.data;
         })
         return Promise.resolve({data: result});
@@ -409,11 +404,10 @@ export const dataProvider: DataProvider = {
             headers: {
                 'Content-Type': 'application/json',
                 Accept: 'application/json',
-            }
-        },
-    withCredentials: true
-}).then((response) => ({
-    data: response.data,
+            },
+            withCredentials: true
+        }).then((response) => ({
+            data: response.data,
         })),
     deleteMany: (resource: any, params: any) => {
         console.log("Delete many")

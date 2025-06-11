@@ -5,6 +5,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
+import com.itextpdf.text.pdf.Barcode128;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.transaction.Transactional;
@@ -26,9 +30,11 @@ import vn.edu.hcmuaf.cdw.ShopThoiTrang.service.OrderService;
 import vn.edu.hcmuaf.cdw.ShopThoiTrang.service.OrderStatusHistoryService;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.sql.Date;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -68,7 +74,8 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Page<Order> getAllOrders(String filter, int page, int perPage, String sortBy, String order) {
         Sort.Direction direction = Sort.Direction.ASC;
-        if (order.equalsIgnoreCase("DESC")) direction = Sort.Direction.DESC;
+        if (order.equalsIgnoreCase("DESC"))
+            direction = Sort.Direction.DESC;
 
         JsonNode filterJson;
         try {
@@ -90,11 +97,24 @@ public class OrderServiceImpl implements OrderService {
                 Join<Order, OrderStatus> statusJoin = root.join("status");
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(statusJoin.get("id"), filterJson.get("statusId").asLong()));
             }
+            if(filterJson.has("date_gte")){
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                try {
+                    java.util.Date date = dateFormat.parse(filterJson.get("date_gte").asText());
+                    Timestamp dateGte = new Timestamp(date.getTime());
+                    predicate = criteriaBuilder.and(predicate, criteriaBuilder.greaterThanOrEqualTo(root.get("orderDate"), dateGte));
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
+                }
+            }
             return predicate;
         };
 
         if (sortBy.equals("price")) {
             return orderRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "totalAmount")));
+        }
+        if (sortBy.equals("OrderDate")) {
+            return orderRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, "orderDate")));
         }
 
         return orderRepository.findAll(specification, PageRequest.of(page, perPage, Sort.by(direction, sortBy)));
@@ -202,6 +222,7 @@ public class OrderServiceImpl implements OrderService {
         try {
             PdfWriter writer = PdfWriter.getInstance(document, byteArrayOutputStream);
             document.open();
+
             BaseFont bf = BaseFont.createFont("src/main/java/vn/edu/hcmuaf/cdw/ShopThoiTrang/font/arial.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
             Font boldFont = new Font(bf, 20, Font.BOLD);
             Font regularFont = new Font(bf, 12, Font.NORMAL);
@@ -250,7 +271,6 @@ public class OrderServiceImpl implements OrderService {
 
             document.add(tableInfo);
 
-
             document.add(Chunk.NEWLINE);
 
             // Add table for order details
@@ -284,11 +304,11 @@ public class OrderServiceImpl implements OrderService {
             PdfPCell cellShippingFeeValue = new PdfPCell(new Phrase(String.valueOf(formatPrice(order.getShippingFee())), regularFont));
             table.addCell(cellShippingFeeValue);
 
-            PdfPCell cellTotal = new PdfPCell(new Phrase("Tổng tiền",  new Font(bf, 16, Font.BOLD)));
+            PdfPCell cellTotal = new PdfPCell(new Phrase("Tổng tiền", new Font(bf, 16, Font.BOLD)));
             cellTotal.setColspan(3);
             table.addCell(cellTotal);
 
-            PdfPCell cellTotalValue = new PdfPCell(new Phrase(String.valueOf(formatPrice(order.getTotalAmount() + order.getShippingFee())),  new Font(bf, 16, Font.BOLD)));
+            PdfPCell cellTotalValue = new PdfPCell(new Phrase(String.valueOf(formatPrice(order.getTotalAmount() + order.getShippingFee())), new Font(bf, 16, Font.BOLD)));
             table.addCell(cellTotalValue);
 
             document.add(table);
@@ -312,9 +332,9 @@ public class OrderServiceImpl implements OrderService {
             table.addCell(header);
         });
     }
+
     private String formatPrice(double price) {
         return String.format("%,.0f", price);
     }
-
 
 }

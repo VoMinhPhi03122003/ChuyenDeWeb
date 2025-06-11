@@ -1,6 +1,5 @@
 import {setActiveLayout} from "../../helpers/product";
 
-
 const ShopTopAction = ({
                            getLayout,
                            productCount,
@@ -32,7 +31,7 @@ const ShopTopAction = ({
                         setActiveLayout(e);
                     }}
                 >
-                    <i className="fa fa-th-large" />
+                    <i className="fa fa-th-large"/>
                 </button>
                 <button
                     onClick={e => {
@@ -40,7 +39,7 @@ const ShopTopAction = ({
                         setActiveLayout(e);
                     }}
                 >
-                    <i className="fa fa-th" />
+                    <i className="fa fa-th"/>
                 </button>
                 <button
                     onClick={e => {
@@ -48,12 +47,10 @@ const ShopTopAction = ({
                         setActiveLayout(e);
                     }}
                 >
-                    <i className="fa fa-list-ul" />
+                    <i className="fa fa-list-ul"/>
                 </button>
             </div>
         </div>
     );
 };
-
-
 export default ShopTopAction;

@@ -1,4 +1,4 @@
-import {GoogleOAuthProvider} from "@react-oauth/google";More actions
+import {GoogleOAuthProvider} from "@react-oauth/google";
 import {Provider} from "react-redux";
 import {RouterProvider} from "react-router-dom";
 import {webRouter} from "./router/router";
@@ -14,7 +14,6 @@ import toast from "react-hot-toast";
 
 
 const Render = () => {
-
     let retryCount = 0;
     axios.interceptors.response.use(
         response => {
@@ -32,6 +31,7 @@ const Render = () => {
 
             if ((error.response.status === 401 || error.response.status === 403) && !originalRequest._retry) {
                 originalRequest._retry = true
+
                 if (retryCount >= 3) {
                     toast.error("Hết phiên đăng nhập, vui lòng đăng nhập lại!")
                     localStorage.removeItem('user');
@@ -65,7 +65,6 @@ const Render = () => {
                         window.location.href = "/login-register"
                         return Promise.reject(error)
                     });
-
             }
             toast.error("Đã có lỗi xảy ra, vui lòng thử lại sau! :" + error)
             return Promise.reject(error)

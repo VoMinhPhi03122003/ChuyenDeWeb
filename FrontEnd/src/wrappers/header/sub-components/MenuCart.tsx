@@ -77,7 +77,7 @@ const MenuCart = ({cartData, deleteFromCart}: any) => {
                         <h4>
                             Tổng :{" "}
                             <span className="shop-total">
-                  {formatCurrency(cartTotalPrice)}
+                {formatCurrency(cartTotalPrice)}
               </span>
                         </h4>
                     </div>

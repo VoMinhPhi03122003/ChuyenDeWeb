@@ -2,7 +2,7 @@ import * as React from 'react';
 import {
     BooleanInput,
     DateField,
-    Edit,ExportButton,
+    Edit, ExportButton,
     Form,
     Labeled,
     PrevNextButtons,
@@ -229,11 +229,11 @@ const OrderForm = () => {
                             <Total/>
                         </div>
                     </CardContent>
-                    <Toolbar>Add commentMore actions
+                    <Toolbar>
                         <Button onClick={() => exportOrder(record.id)} color="primary" variant="contained">
                             Xuất đơn hàng
                         </Button>
-                        <Button onClick={() => updateStatus(record.id, statusId)} color="primary" variant="contained">Add commentMore actions
+                        <Button onClick={() => updateStatus(record.id, statusId)} color="primary" variant="contained">
                             Cập nhật trạng thái
                         </Button>
                     </Toolbar>

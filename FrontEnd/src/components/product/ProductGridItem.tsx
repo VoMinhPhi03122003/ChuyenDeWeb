@@ -28,9 +28,9 @@ const ProductGridItem = ({
                     <div className="product-img">
                         <Link to={"/product/" + product.id}>
                             <img
-                                    className="default-img"
-                                    src={product.imageUrl}
-                                    alt=""
+                                className="default-img"
+                                src={product.imageUrl}
+                                alt=""
                             />
                             {product.imgProducts.length > 0 ? (
                                 <img
@@ -63,7 +63,7 @@ const ProductGridItem = ({
                                     title={
                                         wishlistItem !== undefined
                                             ? "Đã thêm vào yêu thích"
-                                        : "Thêm vào yêu thích"
+                                            : "Thêm vào yêu thích"
                                     }
                                     onClick={() => addToWishlist(product, addToast)}
                                 >
@@ -113,7 +113,7 @@ const ProductGridItem = ({
                                 {product.name}
                             </Link>
                         </h3>
-                        {/*{product.rating && product.rating > 0 ? (*/}Add commentMore actions
+                        {/*{product.rating && product.rating > 0 ? (*/}
                         {/*    <div className="product-rating">*/}
                         {/*        <ProductRating ratingValue={product.rating}/>*/}
                         {/*    </div>*/}

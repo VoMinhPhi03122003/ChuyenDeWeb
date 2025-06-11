@@ -93,14 +93,14 @@ const ShoppingCart = ({
                                                                 {discountedPrice !== null ? (
                                                                     <Fragment>
                                                                     <span className="amount old">
-                                                                          {formatCurrency(finalProductPrice)}
+                                                                        {formatCurrency(finalProductPrice)}
                                                                     </span>
                                                                         <span className="amount">
-                                                                      {formatCurrency(finalDiscountedPrice)}
+                                                                        {formatCurrency(finalDiscountedPrice)}
                                                                     </span>
                                                                     </Fragment>) : (
                                                                     <span className="amount">
-                                                                       {formatCurrency(finalProductPrice)}
+                                                                    {formatCurrency(finalProductPrice)}
                                                                 </span>)}
                                                             </td>
 
@@ -143,6 +143,7 @@ const ShoppingCart = ({
                                                             <td className="product-subtotal">
                                                                 {discountedPrice !== null
                                                                     ? formatCurrency(finalDiscountedPrice * cartItem.quantity) : formatCurrency(finalProductPrice * cartItem.quantity)}
+                                                            </td>
 
                                                             <td className="product-remove">
                                                                 <button onClick={() =>

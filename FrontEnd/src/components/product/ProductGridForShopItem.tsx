@@ -20,6 +20,7 @@ const ProductGridForShopItem = ({
     const discountedPrice = getDiscountPrice(product.price.price, product.promotions[0])
     const finalProductPrice = (product.price.price).toFixed(2);
     const finalDiscountedPrice = discountedPrice !== null ? (discountedPrice).toFixed(2) : 0;
+
     const [reviews, setReviews] = useState([]);
     useEffect(() => {
         const fectch = async () => {
@@ -83,7 +84,7 @@ const ProductGridForShopItem = ({
                                     title={
                                         wishlistItem !== undefined
                                             ? "Đã thêm vào yêu thích"
-                                        : "Thêm vào yêu thích"
+                                            : "Thêm vào yêu thích"
                                     }
                                     onClick={() => addToWishlist(product, addToast)}
                                 >
@@ -143,11 +144,11 @@ const ProductGridForShopItem = ({
                         <div className="product-price">
                             {discountedPrice !== null ? (
                                 <Fragment>
-                                    <span>{formatCurrency(finalDiscountedPrice)}</span>{" "}
-                                    <span className="old">{formatCurrency(finalProductPrice)}</span>
+                                    <span>{formatCurrency( finalDiscountedPrice)}</span>{" "}
+                                    <span className="old">{formatCurrency(finalProductPrice) }</span>
                                 </Fragment>
                             ) : (
-                                <span>{formatCurrency(finalProductPrice)} </span>
+                                <span>{formatCurrency(finalProductPrice) } </span>
                             )}
                         </div>
                     </div>
@@ -199,14 +200,14 @@ const ProductGridForShopItem = ({
                                     {discountedPrice !== null ? (
                                         <Fragment>
                       <span>
-                         {formatCurrency( finalDiscountedPrice) }
+                        {formatCurrency( finalDiscountedPrice) }
                       </span>{" "}
                                             <span className="old">
-                           {formatCurrency(finalProductPrice)  }
+                        {formatCurrency(finalProductPrice)  }
                       </span>
                                         </Fragment>
                                     ) : (
-                                        <span>{formatCurrency(finalProductPrice)} </span>
+                                        <span>{formatCurrency(finalProductPrice) } </span>
                                     )}
                                 </div>
                                 {/*{product.rating && product.rating > 0 ? (*/}
@@ -269,7 +270,7 @@ const ProductGridForShopItem = ({
                                             title={
                                                 wishlistItem !== undefined
                                                     ? "Đã thêm vào yêu thích"
-                                                : "Thêm vào yêu thích"
+                                                    : "Thêm vào yêu thích"
                                             }
                                             onClick={() => addToWishlist(product, addToast)}
                                         >

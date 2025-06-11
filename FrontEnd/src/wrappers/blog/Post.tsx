@@ -13,7 +13,7 @@ const Post = ({post}: any) => {
                 <div className="blog-details-img">
                     <img
                         alt=""
-                        src={post.thumbnail? post.thumbnail : "https://via.placeholder.com/800x400"}
+                        src={post.thumbnail ? post.thumbnail : "https://via.placeholder.com/800x400"}
                     />
                 </div>
                 <div className="blog-details-content">
@@ -29,7 +29,7 @@ const Post = ({post}: any) => {
                 <div className="blog-share">
                     <span>share :</span>
                     <div className="share-social">
-                    <ul>
+                        <ul>
                             <li>
                                 <a className="facebook" href="//facebook.com">
                                     <i className="fa fa-facebook"/>

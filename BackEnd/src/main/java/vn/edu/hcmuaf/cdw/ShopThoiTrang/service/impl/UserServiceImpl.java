@@ -77,6 +77,7 @@ public class UserServiceImpl implements UserService {
         userInfo.setEmail(email);
         userInfoRepository.save(userInfo);
         return "Cập nhật thông tin thành công!";
+    }
 
     @Override
     public User getUserByUsername(String username) {
@@ -85,8 +86,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<?> getAuthorities(String username) {
-            User user = userRepository.findByUsername(username).orElse(null);
-            return user == null ? ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found") : ResponseEntity.ok(user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
+        User user = userRepository.findByUsername(username).orElse(null);
+        return user == null ? ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found") : ResponseEntity.ok(user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
     }
 
     @Override

@@ -10,10 +10,7 @@ import {connect} from "react-redux";
 const PaymentResult = ({deleteAllFromCart}: any) => {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
-
-
     const vnp_Amount: any = queryParams.get('vnp_Amount');
-
     const vnp_BankCode = queryParams.get('vnp_BankCode');
     const vnp_PayDate = queryParams.get('vnp_PayDate');
     const [orderInfo, setOrderInfo] = useState([]);
@@ -21,8 +18,6 @@ const PaymentResult = ({deleteAllFromCart}: any) => {
     const vnp_TransactionStatus = queryParams.get('vnp_TransactionStatus');
     const PayDate = moment(vnp_PayDate, 'YYYYMMDDHHmmss').format('YYYY-MM-DD HH:mm:ss.SSS');
     const navigate = useNavigate();
-
-
 
     useEffect(() => {
         let order: any = localStorage.getItem("order");
@@ -84,6 +79,7 @@ const PaymentResult = ({deleteAllFromCart}: any) => {
                 navigate("/home");
             }
         }
+
     }, [vnp_TxnRef, vnp_TransactionStatus]);
 
     return (
@@ -134,7 +130,6 @@ const PaymentResult = ({deleteAllFromCart}: any) => {
                                         </table>
                                     </div>
                                 </div>
-
                                 <div className="error-button">
                                     <Link to={"/home"} className="btn btn-primary">Quay về trang chủ</Link>
                                 </div>

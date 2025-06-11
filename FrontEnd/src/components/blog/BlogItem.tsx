@@ -9,7 +9,6 @@ const BlogItem = ({singlePost}: any) => {
                     <Link to={`/post-detail/${singlePost.id}`}>
                         <img src={singlePost.thumbnail} alt=""/>
                     </Link>
-
                 </div>
                 <div className="blog-content-wrap">
                     <div className="blog-content text-center">
@@ -19,8 +18,7 @@ const BlogItem = ({singlePost}: any) => {
                             </Link>
                         </h3>
                         <span>
-
-             <a href={"#"}>{singlePost.updateBy}</a>Add commentMore actions
+                            <a href={"#"}>{singlePost.updateBy}</a>
                         </span>
                         <br></br>
                         <span>

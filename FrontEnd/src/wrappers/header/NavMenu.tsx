@@ -24,10 +24,7 @@ const NavMenu = ({menuWhiteClass, sidebarMenu}: any) => {
                         <Link to={"/shop"}>
                             Sản phẩm
                         </Link>
-
                     </li>
-
-
                     <li>
                         <Link to={"/post"}>
                             Blog

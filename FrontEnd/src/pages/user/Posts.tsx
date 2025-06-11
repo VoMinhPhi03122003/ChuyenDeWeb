@@ -6,9 +6,7 @@ import axios from "axios";
 // @ts-ignore
 import Paginator from "react-hooks-paginator";
 
-
 const Posts = () => {
-
     const [posts, setPosts] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [currentData, setCurrentData] = useState([]);
@@ -46,6 +44,7 @@ const Posts = () => {
                             <div className="ml-20">
                                 <div className="row">
                                     <PostsList posts={currentData}/>
+                                </div>
                                 <div className="pro-pagination-style text-center mt-30">
                                     <Paginator
                                         totalRecords={length}
