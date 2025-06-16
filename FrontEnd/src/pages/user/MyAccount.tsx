@@ -5,13 +5,15 @@ import Breadcrumb from "../../wrappers/breadcrumb/Breadcrumb";
 import {Button, Col, Container, Form, Modal, Row, Table} from "react-bootstrap";
 import axios from "axios";
 import {useToasts} from "react-toast-notifications";
-import {Navigate} from "react-router-dom";
-import {Rating, TextField} from "@mui/material";
+import {Navigate, useNavigate} from "react-router-dom";
+import {IconButton, Rating, TextField, Tooltip} from "@mui/material";
 import "../../assets/css/review.css";
 import {getBase64, imgProvider} from "../../imgProvider/imgProvider";
 import toast from "react-hot-toast";
 import {ClipLoader} from "react-spinners";
-
+import ThumbDownOffAltIcon from '@mui/icons-material/ThumbDownOffAlt';
+import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
+import SyncIcon from '@mui/icons-material/Sync';
 
 const MyAccount = () => {
     const {addToast} = useToasts();
@@ -39,20 +41,15 @@ const MyAccount = () => {
     }
 
     const [userProfile, setUserProfile]: any = useState(null);
-    const checkUser = () => {
-        if (!user)
-            return <Navigate to={'/login-register'}/>
-    }
-
-    checkUser();
-
+    const navigate = useNavigate();
     useEffect(() => {
         const fetchUserProfile = async () => {
             await axios.get(`${process.env.REACT_APP_API_ENDPOINT}user/${idUser}`, {
                 headers: {
                     Accept: 'application/json',
                     "Content-Type": "application/json"
-                }
+                },
+                withCredentials: true
             }).then(response => {
                 setUserProfile(response.data);
                 setFullName(response.data.userInfo.fullName);
@@ -60,8 +57,13 @@ const MyAccount = () => {
                 setEmail(response.data.userInfo.email);
             })
         }
-        fetchUserProfile().then();
-    }, []);
+        if (!user || !idUser)
+            navigate('/login-register');
+        else {
+            fetchUserProfile().then();
+        }
+
+    }, [showOrderDetailModal, showOrderStatusModal, showOrderReviewModal]);
 
 
     const displaySelectedImage = (event: any) => {
@@ -165,6 +167,7 @@ const MyAccount = () => {
                 Accept: 'application/json',
                 "Content-Type": "application/json"
             },
+            withCredentials: true,
             params: {
                 id: userProfile.id,
                 oldPassword: oldPassword,
@@ -335,11 +338,11 @@ const MyAccount = () => {
                                                     </tr>
                                                     </thead>
                                                     <tbody>
-                                                    {userProfile.orders.map((order: any, index: number) => (
+                                                    {userProfile.orders.sort((a: any, b: any) => a.id - b.id).map((order: any, index: number) => (
                                                         <tr key={index}>
                                                             <td>{index + 1}</td>
                                                             <td>{order.id}</td>
-                                                            <td>{formatPrice(order.totalAmount + order.shippingFee)}</td>
+                                                            <td>{order && formatPrice(order.totalAmount + order.shippingFee - (order.coupon !== null && order.coupon !== undefined ? order.coupon.price : 0))}</td>
                                                             <td>{formatStatus(order.status)}</td>
                                                             <td>
                                                                 <Button variant="primary" onClick={() => {
@@ -393,7 +396,7 @@ const MyAccount = () => {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <OrderDetailModal order={orderDetail}/>
+                    <OrderDetailModal order={orderDetail} setshowOrderDetailModal={setshowOrderDetailModal}/>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="primary" onClick={() => {
@@ -440,7 +443,8 @@ const MyAccount = () => {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <OrderReviewModal order={orderDetail} addToast={addToast}/>
+                    <OrderReviewModal order={orderDetail} addToast={addToast}
+                                      setshowOrderReviewModal={setshowOrderReviewModal}/>
                 </Modal.Body>
             </Modal>
 
@@ -489,21 +493,24 @@ const formatPrice = (price: any) => {
     return price.toLocaleString('it-IT', {style: 'currency', currency: 'VND'});
 }
 
-const OrderDetailModal = ({order}: any) => {
+const OrderDetailModal = ({order, setshowOrderDetailModal}: any) => {
     const {addToast} = useToasts();
 
-    const cancelOrder = () => {
-        axios.put(`${process.env.REACT_APP_API_ENDPOINT}order/${order.id}/cancel`, null, {
+    const cancelOrder = async () => {
+        await axios.put(`${process.env.REACT_APP_API_ENDPOINT}order/${order.id}/cancel`, null, {
             headers: {
                 Accept: 'application/json',
                 "Content-Type": "application/json"
-            }
+            },
+            withCredentials: true
         }).then(response => {
             addToast("Hủy đơn hàng thành công", {
                 appearance: 'success',
                 autoDismiss: true,
                 autoDismissTimeout: 3000
             });
+            setshowOrderDetailModal(false);
+
         }).catch(error => {
             addToast("Hủy đơn hàng thất bại", {
                 appearance: 'error',
@@ -585,7 +592,7 @@ const OrderDetailModal = ({order}: any) => {
                         </tr>
                         <tr>
                             <th colSpan={3}>Giảm giá</th>
-                            <td style={{color: 'red'}}> - {formatPrice(order.coupon ? order.coupon.price : 0)}</td>
+                            <td style={{color: 'red'}}> - {order && formatPrice(order.coupon !== null && order.coupon !== undefined ? order.coupon.price : 0)}</td>
                         </tr>
                         <tr>
                             <th colSpan={3}>Tổng tiền</th>
@@ -641,7 +648,7 @@ const OrderDetailModal = ({order}: any) => {
 
                     {order.status.id === 1 && order.paymentMethod === "cod" && (
                         <Button variant="danger" className={"mt-25"}
-                        onClick={() => cancelOrder()}>Hủy đơn hàng</Button>
+                                onClick={() => cancelOrder()}>Hủy đơn hàng</Button>
                     )}
 
                 </Col>
@@ -651,7 +658,7 @@ const OrderDetailModal = ({order}: any) => {
 
 }
 
-const OrderReviewModal = ({order, addToast}: any) => {
+const OrderReviewModal = ({order, addToast, setshowOrderReviewModal}: any) => {
     const user: any = localStorage.getItem('user');
 
     const idUser: any = JSON.parse(user) ? JSON.parse(user).id : null;
@@ -663,7 +670,7 @@ const OrderReviewModal = ({order, addToast}: any) => {
     const [product, setProduct] = useState(null);
 
 
-    const submitReview = () => {
+    const submitReview = async () => {
         if (rating === 0 || comment === '') {
             addToast("Vui lòng nhập đầy đủ thông tin", {
                 appearance: 'error',
@@ -673,7 +680,7 @@ const OrderReviewModal = ({order, addToast}: any) => {
             return;
         }
 
-        axios.post(`${process.env.REACT_APP_API_ENDPOINT}review`, {
+        await axios.post(`${process.env.REACT_APP_API_ENDPOINT}review`, {
             content: comment,
             rating: rating,
             product: product,
@@ -683,8 +690,10 @@ const OrderReviewModal = ({order, addToast}: any) => {
             headers: {
                 Accept: 'application/json',
                 "Content-Type": "application/json"
-            }
+            },
+            withCredentials: true
         }).then(response => {
+            setshowOrderReviewModal(false);
             addToast("Đánh giá thành công", {
                 appearance: 'success',
                 autoDismiss: true,
@@ -702,7 +711,7 @@ const OrderReviewModal = ({order, addToast}: any) => {
                         <h4>Đánh giá đơn hàng</h4>
                         <Table striped>
                             <thead>
-                            <tr>
+                            <tr style={{textAlign: "center"}}>
                                 <th>#</th>
                                 <th>Tên sản phẩm</th>
                                 <th>Trạng thái</th>
@@ -710,7 +719,9 @@ const OrderReviewModal = ({order, addToast}: any) => {
                             </thead>
                             <tbody className={"mb-20"}>
                             {order.orderDetails.map((orderDetail: any, index: number) => (
-                                <tr key={index}>
+                                <tr key={index} style={{
+                                    verticalAlign: "middle"
+                                }}>
                                     <td>{index + 1}</td>
                                     <td>{orderDetail.productId.name} /
                                         ({orderDetail.variation.color} / {orderDetail.size.size})
@@ -727,7 +738,7 @@ const OrderReviewModal = ({order, addToast}: any) => {
                                         {orderDetail.review != null && (
                                             <>
                                                 <Rating name="read-only" value={orderDetail.review.rating} readOnly
-                                                        style={{textAlign: 'center'}}/>
+                                                        style={{textAlign: 'center', marginRight: '10px'}}/>
                                                 <TextField
                                                     id="outlined-multiline-static"
                                                     multiline
@@ -735,7 +746,26 @@ const OrderReviewModal = ({order, addToast}: any) => {
                                                     variant="outlined"
                                                     disabled
                                                     fullWidth
+                                                    style={{marginRight: '10px'}}
                                                 />
+                                                {orderDetail.review.type === 0 && <Tooltip
+                                                    title="Nhận xét của bạn đã bị shop từ chối và sẽ không hiển thị ở đánh giá sản phẩm">
+                                                    <IconButton>
+                                                        <ThumbDownOffAltIcon color={'error'}/>
+                                                    </IconButton>
+                                                </Tooltip>}
+                                                {orderDetail.review.type === 2 && <Tooltip
+                                                    title="Nhận xét của bạn được phê duyệt và sẽ hiển thị công khai ở đánh giá sản phẩm">
+                                                    <IconButton>
+                                                        <ThumbUpOffAltIcon color={'success'}/>
+                                                    </IconButton>
+                                                </Tooltip>}
+                                                {orderDetail.review.type === 1 && <Tooltip
+                                                    title="Nhận xét của bạn đang đợi phê duyệt, sẽ chưa hiển thị ở đánh giá sản phẩm">
+                                                    <IconButton>
+                                                        <SyncIcon color={'warning'}/>
+                                                    </IconButton>
+                                                </Tooltip>}
                                             </>
                                         )}
                                     </td>

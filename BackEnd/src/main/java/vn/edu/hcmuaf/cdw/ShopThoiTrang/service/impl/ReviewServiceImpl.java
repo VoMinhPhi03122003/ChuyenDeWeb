@@ -11,6 +11,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import vn.edu.hcmuaf.cdw.ShopThoiTrang.entity.OrderDetail;
 import vn.edu.hcmuaf.cdw.ShopThoiTrang.entity.Review;
 import vn.edu.hcmuaf.cdw.ShopThoiTrang.model.dto.ReviewRequest;
 import vn.edu.hcmuaf.cdw.ShopThoiTrang.reponsitory.OrderDetailRepository;
@@ -46,6 +48,7 @@ public class ReviewServiceImpl implements ReviewService {
 
 
     @Override
+    @Transactional
     public Review createReview(ReviewRequest reviewRequest) {
         try {
             java.sql.Date date = new java.sql.Date(new Date().getTime());
@@ -53,13 +56,15 @@ public class ReviewServiceImpl implements ReviewService {
             review.setContent(reviewRequest.getContent());
             review.setRating(reviewRequest.getRating());
             review.setStatus(true);
-            review.setType(0);
+            review.setType(1);
             review.setProduct(productRepository.findById(reviewRequest.getProduct()).orElse(null));
             review.setReviewedDate(date);
             review.setDeleted(false);
             review.setReviewer(userRepository.findById(reviewRequest.getReviewer()).orElse(null));
             review.setOrderDetail(orderDetailRepository.findById(reviewRequest.getOrderDetail()).orElse(null));
-
+            OrderDetail orderDetail = orderDetailRepository.findById(reviewRequest.getOrderDetail()).orElse(null);
+            orderDetail.setReview(review);
+            orderDetailRepository.save(orderDetail);
             Log.info("Review created: " + review);
             return reviewRepository.save(review);
         } catch (Exception e) {
@@ -178,6 +183,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    @Transactional
     public Review updateReview(Long id, int type) {
         try {
             Review reviewToUpdate = reviewRepository.findById(id).orElse(null);
@@ -191,6 +197,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    @Transactional
     public void deleteReview(Long id) {
         try {
             Review review = reviewRepository.findById(id).orElse(null);

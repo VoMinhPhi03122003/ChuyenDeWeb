@@ -5,6 +5,7 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import {Stomp} from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import {useNavigate} from "react-router-dom";
+import axios from "axios";
 
 const Notification = () => {
     const [anchorEl, setAnchorEl] = useState(null);
@@ -13,28 +14,52 @@ const Notification = () => {
 
     useEffect(() => {
         // Establish WebSocket connection
-        const socket = new SockJS(`${process.env.REACT_APP_API_URL}/ws`);
+        const socket = new SockJS(`${process.env.REACT_APP_API_URL_SOCKET}/ws`);
         const stompClient = Stomp.over(socket);
 
         stompClient.connect({}, (frame: any) => {
 
+            console.log('Connected:', frame);
+
             // Subscribe to the topic for new orders
             stompClient.subscribe('/topic/notifications', (message) => {
                 const notification = JSON.parse(message.body);
+                console.log('Received notification:', notification)
+                console.log("message", message)
+                console.log("frame", frame)
                 // Update notifications state with new notification
-                setNotifications((prevNotifications): any => [...prevNotifications, notification]);
+                console.log("line 26: " + notification)
+                setNotifications((prevNotifications): any => [notification, ...prevNotifications]);
             });
 
-            // Fetch initial notifications from API
-            getNotifications();
         });
+
+        // Fetch initial notifications from API
+        const getNotifications = async () => {
+            await axios.get(`${process.env.REACT_APP_API_URL}/notification`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                },
+                withCredentials: true
+            }).then((response) => {
+                const data = response.data
+                setNotifications(data.content);
+                console.log('Fetched notifications:', data.content);
+                console.log(Array.isArray(notifications));
+            }).catch(error => {
+                console.error('Error fetching notifications:', error);
+            });
+        };
+
+        getNotifications();
 
         return () => {
             if (stompClient) {
                 stompClient.disconnect();
             }
         };
-    }, []);
+    }, [navigate]);
 
     const getNotifications = async () => {
         try {
@@ -203,7 +228,7 @@ const Notification = () => {
                                 >
                                     <ListItemText
                                         primary={
-                                            notification.resource === 'order' ? `Đơn hàng mới: #${notification.idResource}` : notification.message
+                                            notification.resource === 'order' ? `Đơn hàng mới: #${notification.idResource}` : (notification.resource === 'review' ? `Đánh giá mới` : `Liên hệ mới`)
                                         }
                                         secondary={calculateTime(notification.createdAt)}
                                     />
