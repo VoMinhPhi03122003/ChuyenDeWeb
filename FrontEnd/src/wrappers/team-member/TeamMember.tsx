@@ -11,7 +11,7 @@ const TeamMember = ({spaceTopClass, spaceBottomClass}: any) => {
             "fbLink": "//www.facebook.com",
             "twitterLink": "//www.twitter.com",
             "instagramLink": "//www.instagram.com",
-            "name": "Đinh Huy Hoàng",
+            "name": "Lâm Hồng Phúc",
             "position": "Thành viên"
         },
         {
@@ -20,7 +20,7 @@ const TeamMember = ({spaceTopClass, spaceBottomClass}: any) => {
             "fbLink": "//www.facebook.com",
             "twitterLink": "//www.twitter.com",
             "instagramLink": "//www.instagram.com",
-            "name": "Nguyễn Ngọc Huy",
+            "name": "Võ Minh Phi",
             "position": "Thành viên"
         }
     ]

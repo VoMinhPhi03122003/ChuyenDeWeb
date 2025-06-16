@@ -23,7 +23,8 @@ const LoginRegister = () => {
 
     const {handleSubmitCode} = useFormSendCode(setLoading, regBody);
     const loginGoogleHandle = async (credentialResponse: any) => {
-        console.log(credentialResponse)
+        console.log("Google credential response:", credentialResponse);
+        console.log("Token being sent:", credentialResponse.credential);
         await axios.post(process.env.REACT_APP_API_ENDPOINT + "auth/google",
             {token: credentialResponse.credential}
             , {

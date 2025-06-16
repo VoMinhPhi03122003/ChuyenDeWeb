@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.hcmuaf.cdw.ShopThoiTrang.JWT.JwtUtils;
@@ -46,6 +47,8 @@ public class GoogleServiceImpl implements GoogleService {
     private UserInfoRepository userInfoRepository;
     @Autowired
     private RefreshTokenService refreshTokenService;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public GoogleServiceImpl(@Value("${spring.security.oauth2.client.registration.google.client-id}") String clientId) {
         NetHttpTransport transport = new NetHttpTransport();
@@ -58,14 +61,17 @@ public class GoogleServiceImpl implements GoogleService {
     @Override
     public ResponseEntity<?> login_google(String token) {
         try {
+            Log.info("Received Google login request with token length: " + (token != null ? token.length() : 0));
             GoogleAccountDto user = verifyIDToken(token);
             if (user == null) {
-                throw new IllegalArgumentException();
+                Log.error("Failed to verify Google ID token");
+                throw new IllegalArgumentException("Invalid Google ID token");
             }
+            Log.info("Successfully verified Google ID token, creating/updating user");
             createOrUpdateUser(user);
             User userDetails = userRepository.findByUsername(user.getEmail()).get();
             if (!userDetails.getRole().getName().equals("USER")) {
-                Log.warn(user.getEmail() + "unauthorized to login with google account");
+                Log.warn(user.getEmail() + " unauthorized to login with google account");
                 return new ResponseEntity<>("unauthorized ", HttpStatus.NOT_ACCEPTABLE);
             }
             List<String> permissions = userDetails.getAuthorities().stream()
@@ -74,8 +80,9 @@ public class GoogleServiceImpl implements GoogleService {
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
 
             ResponseCookie jwtRefreshCookie = jwtUtils.generateRefreshJwtCookie(refreshToken.getToken(), "shop2h_refresh");
-
             ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails, "shop2h");
+            
+            Log.info("Successfully generated JWT tokens for user: " + user.getEmail());
             return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
                     .header(HttpHeaders.SET_COOKIE, jwtRefreshCookie.toString()).body(new JwtResponse(
                             userDetails.getId(),
@@ -90,8 +97,11 @@ public class GoogleServiceImpl implements GoogleService {
     @Transactional
     public void createOrUpdateUser(GoogleAccountDto user) {
         try {
-            User existingUser = userRepository.findById(userInfoRepository.findByEmail(user.getEmail()).getId()).orElse(null);
+            // First try to find user by username (email)
+            User existingUser = userRepository.findByUsername(user.getEmail()).orElse(null);
+            
             if (existingUser == null) {
+                // Create new user if not found
                 existingUser = new User();
                 existingUser.setUserInfo(new UserInfo());
                 existingUser.getUserInfo().setEmail(user.getEmail());
@@ -100,6 +110,8 @@ public class GoogleServiceImpl implements GoogleService {
                 existingUser.setRole(new Role(2L, "USER"));
                 existingUser.setEnabled(true);
                 existingUser.setUsername(user.getEmail());
+                // Set a default encrypted password for Google-authenticated users
+                existingUser.setPasswordEncrypted(passwordEncoder.encode("GOOGLE_AUTH_" + user.getEmail()));
                 existingUser.getUserInfo().setUser(existingUser);
                 Date date = new Date(System.currentTimeMillis());
                 existingUser.setCreatedDate(date);
@@ -114,8 +126,10 @@ public class GoogleServiceImpl implements GoogleService {
 
     private GoogleAccountDto verifyIDToken(String idToken) {
         try {
+            Log.info("Attempting to verify Google ID token");
             GoogleIdToken idTokenObj = verifier.verify(idToken);
             if (idTokenObj == null) {
+                Log.error("Failed to verify Google ID token - token is null");
                 return null;
             }
             GoogleIdToken.Payload payload = idTokenObj.getPayload();
@@ -124,6 +138,7 @@ public class GoogleServiceImpl implements GoogleService {
             String email = payload.getEmail();
             String pictureUrl = (String) payload.get("picture");
 
+            Log.info("Successfully verified Google ID token for email: " + email);
             return new GoogleAccountDto(firstName, lastName, email, pictureUrl);
         } catch (GeneralSecurityException | IOException e) {
             Log.error("Error in verifyIDToken at GoogleServiceImpl: " + e.getMessage());

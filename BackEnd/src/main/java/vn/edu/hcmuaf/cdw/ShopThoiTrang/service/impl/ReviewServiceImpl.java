@@ -111,7 +111,7 @@ public class ReviewServiceImpl implements ReviewService {
                     predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("product").get("id"), filterJson.get("product.id").asLong()));
                 }
                 if (filterJson.has("deleted")) {
-                    predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("isDeleted"), filterJson.get("deleted").asBoolean()));
+                    predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("deleted"), filterJson.get("deleted").asBoolean()));
                 }
                 if (filterJson.has("reviewedDate")) {
                     String dateString = filterJson.get("reviewedDate").asText();
@@ -142,7 +142,7 @@ public class ReviewServiceImpl implements ReviewService {
                 case "content" ->
                         reviewRepository.findAll(specification, PageRequest.of(start, end, Sort.by(direction, "content")));
                 case "deleted" ->
-                        reviewRepository.findAll(specification, PageRequest.of(start, end, Sort.by(direction, "isDeleted")));
+                        reviewRepository.findAll(specification, PageRequest.of(start, end, Sort.by(direction, "deleted")));
                 default ->
                         reviewRepository.findAll(specification, PageRequest.of(start, end, Sort.by(direction, sortBy)));
             };
