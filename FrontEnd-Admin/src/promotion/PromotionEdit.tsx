@@ -1,13 +1,48 @@
 import {
     ArrayInput, AutocompleteInput,
     BooleanInput, DateInput,
-    Edit, ImageField, NullableBooleanInput, NumberInput, ReferenceInput,
+    Edit, ImageField, ImageInput, NullableBooleanInput, NumberInput, ReferenceInput,
     required, SimpleFormIterator, TabbedForm,
     TextInput, useEditContext, useGetList,
 } from "react-admin";
 import {Grid, InputAdornment, Typography} from "@mui/material";
 import React from "react";
 import {Category, Product} from "../types";
+import {useWatch} from "react-hook-form";
+
+
+export const ReturnedImg = () => {
+    const isReturned = useWatch({name: 'thumbnail'});
+    return isReturned ?
+        <>
+            <ImageField source="thumbnail" title="thumbnail" sx={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "5px",
+                marginBottom: "5px",
+                maxHeight: "100px"
+            }}/>
+            <ImageInput source="newthumbnail" accept="image/*"
+                        placeholder={<p>Thay đổi thumbnail</p>} label={"Thay đổi thumbnail"}>
+                <ImageField source="src" title="title" sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    marginTop: "5px",
+                    marginBottom: "5px",
+                    maxHeight: "100px"
+                }}/>
+            </ImageInput>
+        </> : <ImageInput source="thumbnail" accept="image/*"
+                          placeholder={<p>Thêm thumbnail</p>}>
+            <ImageField source="src" title="title" sx={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "5px",
+                marginBottom: "5px",
+                maxHeight: "100px"
+            }}/>
+        </ImageInput>;
+};
 
 const PromotionEdit = () => {
 
@@ -29,7 +64,7 @@ const PromotionEdit = () => {
                 >
                     <Grid container columnSpacing={2}>
                         <Grid item xs={12} sm={12}>
-                            <ImageField source={"thumbnail"} label="Ảnh" sx={{margin: 'auto'}}/>
+                            <ReturnedImg/>
                         </Grid>
                         <Grid item xs={12} sm={12}>
                             <TextInput source="name" label="Tên khuyến mãi" validate={required()} fullWidth/>
