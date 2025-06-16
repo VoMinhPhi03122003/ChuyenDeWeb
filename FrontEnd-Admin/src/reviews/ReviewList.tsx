@@ -16,10 +16,9 @@ import ReviewListDesktop from './ReviewListDesktop';
 import reviewFilters from './reviewFilters';
 import ReviewEdit from './ReviewEdit';
 
-const ReviewListActions = () => (
+const ReviewListActions = ({permissions} : any) => (
     <TopToolbar>
         <FilterButton/>
-        <CreateButton/>
         <SelectColumnsButton/>
         <ExportButton/>
     </TopToolbar>

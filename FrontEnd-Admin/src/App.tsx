@@ -1,5 +1,15 @@
 import * as React from 'react';
-import {Admin, AppBar, CustomRoutes, Layout, Login, Resource, houseLightTheme, radiantLightTheme} from 'react-admin';
+import {
+    Admin,
+    AppBar,
+    CustomRoutes,
+    Layout,
+    Login,
+    Resource,
+    houseLightTheme,
+    radiantLightTheme,
+    usePermissions
+} from 'react-admin';
 import {dataProvider} from "./dataProvider/dataProvider";
 import UserList from "./users/UserList";
 import {authProvider} from "./authProvider";
@@ -27,7 +37,6 @@ import DiscountRoundedIcon from '@mui/icons-material/DiscountRounded';
 import ProductShow from "./products/ProductShow";
 import OrderList from "./orders/OrderList";
 import OrderEdit from "./orders/OrderEdit";
-import OrderCreate from "./orders/OrderCreate";
 import PromotionList from "./promotion/PromotionList";
 import PromotionEdit from "./promotion/PromotionEdit";
 import PromotionCreate from "./promotion/PromotionCreate";
@@ -40,6 +49,10 @@ import CouponList from "./coupons/CouponList";
 import CouponEdit from "./coupons/CouponEdit";
 import CouponCreate from "./coupons/CouponCreate";
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import ContactList from "./contact/ContactList";
+import QuickreplyIcon from '@mui/icons-material/Quickreply';
+import {ReplyContact} from "./contact/ReplyContact";
+import {ShowContact} from "./contact/ShowContact";
 
 const App = () => {
     return (
@@ -100,7 +113,7 @@ const App = () => {
             <Resource name={"order"}
                       list={OrderList}
                       edit={OrderEdit}
-                      create={OrderCreate}
+                      hasCreate={false}
                       icon={ReceiptRoundedIcon}
                       options={{label: "Đơn hàng"}}
 
@@ -116,6 +129,7 @@ const App = () => {
                       list={BlogList}
                       edit={BlogEdit}
                       create={BlogCreate}
+                      hasShow={false}
                       icon={NewspaperRoundedIcon}
                       options={{label: "Bài viết"}}
             />
@@ -123,6 +137,13 @@ const App = () => {
                       list={ReviewList}
                       icon={CommentRoundedIcon}
                       options={{label: "Đánh giá"}}
+            />
+            <Resource name={'contact'}
+                      list={ContactList}
+                      edit={ReplyContact}
+                      show={ShowContact}
+                      icon={QuickreplyIcon}
+                      options={{label: "Liên hệ"}}
             />
         </Admin>
     );

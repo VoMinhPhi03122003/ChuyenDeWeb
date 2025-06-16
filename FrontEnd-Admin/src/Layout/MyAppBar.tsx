@@ -1,9 +1,10 @@
 import * as React from 'react';
-import {AppBar, Logout, TitlePortal, UserMenu, useTheme, useUserMenu} from 'react-admin';
+import {AppBar, LoadingIndicator, Logout, TitlePortal, UserMenu, useUserMenu} from 'react-admin';
 import Box from '@mui/material/Box';
 import {MenuItem, ListItemIcon, ListItemText} from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import {useNavigate} from "react-router-dom";
+import Notification from "../websocket/Notification";
 
 const SettingsMenuItem = React.forwardRef((props: any, ref: any) => {
     const {onClose} = useUserMenu();
@@ -34,6 +35,10 @@ export const MyAppBar = () => {
                         <Logout title={"Đăng xuất"}/>
                     </UserMenu>
                 }
+                toolbar={<>
+                    <LoadingIndicator/>
+                    <Notification/>
+                </>}
                 sx={theme => ({
                     '.MuiToolbar-root': {
                         [theme.breakpoints.down("md")]: {
@@ -47,3 +52,6 @@ export const MyAppBar = () => {
             <Box flex="1"/>
         </AppBar>)
 };
+
+
+

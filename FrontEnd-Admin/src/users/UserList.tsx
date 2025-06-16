@@ -1,14 +1,14 @@
 import * as React from 'react';
 import {
-    ArrayField, BulkDeleteButton, BulkUpdateButton, Button,
+    ArrayField, Button,
     CreateButton,
     DatagridConfigurable,
-    DateField,
+    DateField, DeleteButton,
     EditButton,
-    ExportButton, FilterList, FilterListItem, FilterLiveSearch,
+    ExportButton, FilterList, FilterListItem, FilterLiveSearch, FunctionField,
     List, SavedQueriesList,
     SelectColumnsButton, TextField,
-    TopToolbar
+    TopToolbar, UpdateButton
 } from 'react-admin';
 import {useMediaQuery, Theme, Dialog, DialogContent, DialogTitle, DialogActions} from '@mui/material';
 import UserListAside from "./UserListAside";
@@ -20,6 +20,10 @@ import LockIcon from "@mui/icons-material/Lock";
 import FilterListIcon from '@mui/icons-material/FilterList';
 import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
 import CancelIcon from '@mui/icons-material/Cancel';
+import {useEffect} from "react";
+import {authProvider} from "../authProvider";
+import RestoreIcon from '@mui/icons-material/Restore';
+import {checkPermission} from "../helpers";
 
 const BootstrapDialog = styled(Dialog)(({theme}: any) => ({
     '& .MuiDialogContent-root': {
@@ -89,6 +93,21 @@ function CustomDialog() {
                             label="Chưa khoá"
                             value={{status: true}}
                         />
+
+                    </FilterList>
+                    <FilterList
+                        label="Đã bị xoá"
+                        icon={<LockIcon/>}
+                    >
+                        <FilterListItem
+                            label="Đã xoá"
+                            value={{deleted: true}}
+                        />
+                        <FilterListItem
+                            label="Chưa xoá"
+                            value={{deleted: false}}
+                        />
+
                     </FilterList>
                 </DialogContent>
                 <DialogActions>
@@ -106,7 +125,7 @@ function CustomDialog() {
 
 const UserListActions = (props: any) => (
     <TopToolbar>
-        <CreateButton/>
+        {props.permissions && checkPermission(props.permissions, "USER_CREATE") && <CreateButton/>}
         {props.isSmall && <CustomDialog/>}
         <SelectColumnsButton/>
         <ExportButton/>
@@ -114,10 +133,13 @@ const UserListActions = (props: any) => (
 );
 
 const UserList = () => {
-    //
-    // useEffect(() => {
-    //     console.log(permissions, isLoading, error)
-    // }, [permissions, isLoading, error]);
+    const [permissions, setPermissions] = React.useState<any>(null)
+    const fetch: any = authProvider.getPermissions(null);
+    useEffect(() => {
+        fetch.then((response: any) => {
+            setPermissions(response.permissions)
+        })
+    }, [])
     const isXsmall = useMediaQuery<Theme>(theme =>
         theme.breakpoints.down('sm')
     );
@@ -127,11 +149,11 @@ const UserList = () => {
             sort={{field: 'createdDate', order: 'DESC'}}
             perPage={25}
             aside={<UserListAside/>}
-            actions={<UserListActions isSmall={isSmall}/>}
+            actions={<UserListActions permissions={permissions} isSmall={isSmall}/>}
             sx={{height: '100%'}}
         >
             {isXsmall ? (
-                <MobileGrid/>
+                <MobileGrid permissions={permissions}/>
             ) : (
                 <DatagridConfigurable
                     sx={{
@@ -140,11 +162,7 @@ const UserList = () => {
                             lg: {display: 'table-cell'},
                         },
                     }}
-                    bulkActionButtons={
-                        <>
-                            <BulkUpdateButton data={{enabled: false}} label="Ngưng hoạt động tất cả tài khoản đã chọn"/>
-                        </>
-                    }
+                    bulkActionButtons={false}
                 >
                     <UserLinkField
                         source="fullName"
@@ -152,9 +170,33 @@ const UserList = () => {
                     />
                     <TextField source="username" label="Tên đăng nhập"/>
                     <DateField source="createdDate" label={"Ngày tạo"}/>
-                    <ArrayField label={"Tuỳ chọn"}>
-                        <EditButton/>
-                    </ArrayField>
+                    <FunctionField render={
+                        (record: any) => {
+                            return (<ArrayField label={"Tuỳ chọn"}>
+                                <div style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-evenly',
+                                    alignItems: 'center',
+                                    width: '100%'
+                                }}>
+                                    {permissions && checkPermission(permissions, "USER_UPDATE") &&
+                                        <EditButton/>}
+                                    {permissions && checkPermission(permissions, "USER_DELETE") && !record.deleted &&
+                                        <DeleteButton mutationMode={'pessimistic'}/>}
+                                    {permissions && checkPermission(permissions, "USER_UPDATE") && record.deleted &&
+                                        <UpdateButton resource={'user/deleted'} label="Restore"
+                                                      data={{deleted: false}}
+                                                      sx={{
+                                                          color: 'green',
+                                                          borderColor: 'green',
+                                                      }}>
+                                            <RestoreIcon/>
+                                        </UpdateButton>}
+                                </div>
+                            </ArrayField>)
+                        }
+                    }
+                    />
                 </DatagridConfigurable>
             )}
         </List>
