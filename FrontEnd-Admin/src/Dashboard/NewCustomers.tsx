@@ -21,22 +21,27 @@ interface LoyalCustomersProps {
 }
 
 const NewCustomers = (loyalCustomers: any) => {
-    console.log(Array.isArray(loyalCustomers.loyalCustomers))
+    const formatPrice = (price: any) => {
+        return price.toLocaleString('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+        });
+    }
     return (
         <Card sx={{flex: 1}}>
             <CardHeader
                 title="Khách hàng tiềm năng"
                 // subheader="Khách hàng mới trong 30 ngày qua"
-                action={
-                    <Button
-                        component={Link}
-                        to="/user"
-                        size="small"
-                        color="primary"
-                    >
-                        Xem tất cả
-                    </Button>
-                }
+                // action={
+                //     <Button
+                //         component={Link}
+                //         to="/user"
+                //         size="small"
+                //         color="primary"
+                //     >
+                //         Xem tất cả
+                //     </Button>
+                // }
             />
             <FixedSizeList
                 height={400}
@@ -47,7 +52,6 @@ const NewCustomers = (loyalCustomers: any) => {
             >
                 {({index, style}) => {
                     const loyalCustomer = loyalCustomers.loyalCustomers[index];
-                    console.log(loyalCustomer)
                     return (
                         <div style={style}>
                             <ListItem
@@ -65,7 +69,7 @@ const NewCustomers = (loyalCustomers: any) => {
                                 </ListItemAvatar>
                                 <ListItemText
                                     primary={loyalCustomer.user.userInfo.fullName}
-                                    secondary={"Đã mua " + loyalCustomer.totalOrders + " đơn hàng, tổng cộng " + loyalCustomer.totalAmount + " đồng"}
+                                    secondary={"Đã mua " + loyalCustomer.totalOrders + " đơn hàng, tổng cộng " + formatPrice(loyalCustomer.totalAmount)}
                                 />
                             </ListItem>
                         </div>

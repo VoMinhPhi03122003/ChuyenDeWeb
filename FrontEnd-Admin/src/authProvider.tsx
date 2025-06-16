@@ -20,17 +20,26 @@ httpClient.interceptors.response.use(
                 console.log(response)
                 Promise.resolve();
             }).catch((error) => {
+                console.log(error)
                 if (error.response.status === 400) {
                     // @ts-ignore
                     authProvider.logout();
                     window.location.href = '/#/login';
                     return Promise.reject({message: "Your session is expired. Please login again."});
+                } else if (error.response.status === 401) {
+                    // @ts-ignore
+                    authProvider.logout();
+                    window.location.href = '/#/login';
+                    return Promise.reject({message: "Your session is expired. Please login again."});
+                } else {
+                    return Promise.reject({message: "There was an error. Please try again."});
                 }
             });
         } else {
+            console.log(error)
             if (error.response.status === 400) {
                 // @ts-ignore
-                authProvider.logout();
+                await authProvider.logout();
                 window.location.href = '/#/login';
                 return Promise.reject({message: "Your session is expired. Please login again."});
             }
@@ -38,6 +47,7 @@ httpClient.interceptors.response.use(
         }
     }
 )
+
 export const authProvider: AuthProvider = {
 
     login: async ({username, password}) => {
@@ -73,38 +83,41 @@ export const authProvider: AuthProvider = {
     checkError: () => Promise.resolve(),
     checkAuth: () =>
         localStorage.getItem('admin') ? Promise.resolve() : Promise.reject(),
-    getPermissions: async () => {
-        await httpClient.get(`${process.env.REACT_APP_API_URL}/user/get-authorities`, {
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json'
-            },
-            withCredentials: true
-        }).then((response) => {
-            if (response.status === 200) {
-                return Promise.resolve(response.data);
-            }
-        })
-    },
-    //@ts-ignore
-    getIdentity: async () => {
-        await httpClient.get(`${process.env.REACT_APP_API_URL}/user/info`, {
+    getPermissions: async (params: any) => {
+        return await httpClient.get(`${process.env.REACT_APP_API_URL}/user/get-authorities`, {
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json'
             },
             withCredentials: true
         }).then((response: any) => {
-            console.log(response)
-            if (response.status === 200) {
-                return Promise.resolve({
-                    id: "admin",
-                    fullName: response.fullName,
-                    email: response.email,
-                    phone: response.phone,
-                    avt: response.avtUrl
-                });
-            } else console.log(response.status)
+            return {permissions: response.data};
+        }).catch((error) => {
+            console.log(error)
+        })
+    },
+    getIdentity: async () => {
+        return await httpClient.get(`${process.env.REACT_APP_API_URL}/user/info`, {
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json'
+            },
+            withCredentials: true
+        }).then((response: any) => {
+            return Promise.resolve({
+                id: response.data.user.id,
+                fullName: response.data.fullName,
+                email: response.data.email,
+                phone: response.data.phone,
+                avatar: response.data.avtUrl,
+                userInfo: {
+                    id: response.data.user.id,
+                    fullName: response.data.fullName,
+                    email: response.data.email,
+                    phone: response.data.phone,
+                    avtUrl: response.data.avtUrl,
+                }
+            });
         })
     }
 }

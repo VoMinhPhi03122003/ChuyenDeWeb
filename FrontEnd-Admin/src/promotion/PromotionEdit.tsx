@@ -1,16 +1,64 @@
 import {
     ArrayInput, AutocompleteInput,
-    BooleanInput, DateInput,
-    Edit, ImageField, NullableBooleanInput, NumberInput, ReferenceInput,
-    required, SimpleFormIterator, TabbedForm,
-    TextInput, useEditContext, useGetList,
+    BooleanInput, DateInput, DeleteButton,
+    Edit, ImageField, ImageInput, NullableBooleanInput, NumberInput, ReferenceInput,
+    required, SaveButton, SimpleFormIterator, TabbedForm,
+    TextInput, Toolbar, useEditContext, useGetList, useNotify,
 } from "react-admin";
 import {Grid, InputAdornment, Typography} from "@mui/material";
-import React from "react";
+import React, {useEffect} from "react";
 import {Category, Product} from "../types";
+import {useWatch} from "react-hook-form";
+import {checkPermission} from "../helpers";
+import {authProvider} from "../authProvider";
 
-const PromotionEdit = () => {
 
+export const ReturnedImg = () => {
+    const isReturned = useWatch({name: 'thumbnail'});
+    return isReturned ?
+        <>
+            <ImageField source="thumbnail" title="thumbnail" sx={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "5px",
+                marginBottom: "5px",
+                maxHeight: "100px"
+            }}/>
+            <ImageInput source="newthumbnail" accept="image/*"
+                        placeholder={<p>Thay đổi thumbnail</p>} label={"Thay đổi thumbnail"}>
+                <ImageField source="src" title="title" sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    marginTop: "5px",
+                    marginBottom: "5px",
+                    maxHeight: "100px"
+                }}/>
+            </ImageInput>
+        </> : <ImageInput source="thumbnail" accept="image/*"
+                          placeholder={<p>Thêm thumbnail</p>}>
+            <ImageField source="src" title="title" sx={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "5px",
+                marginBottom: "5px",
+                maxHeight: "100px"
+            }}/>
+        </ImageInput>;
+};
+
+const PromotionEdit = (props: any) => {
+    const notify = useNotify();
+    const [permissions, setPermissions] = React.useState<any>(null)
+    const fetch: any = authProvider.getPermissions(null);
+    useEffect(() => {
+        fetch.then((response: any) => {
+            if (response && !checkPermission(response.permissions, "PROMOTION_UPDATE")) {
+                window.location.replace("/#/promotion");
+                notify("Permission denied", {type: 'error'});
+            } else
+                setPermissions(response.permissions)
+        })
+    }, [props]);
     const {record, isLoading}: any = useEditContext();
     console.log(record);
 
@@ -22,14 +70,19 @@ const PromotionEdit = () => {
     if (isLoading) return null;
     return (
         <Edit>
-            <TabbedForm warnWhenUnsavedChanges>
+            <TabbedForm warnWhenUnsavedChanges
+                        toolbar={<Toolbar sx={{display: 'flex', justifyContent: 'space-between'}}>
+                            <SaveButton/>
+                            {permissions && checkPermission(permissions, "PROMOTION_DELETE") &&
+                                <DeleteButton mutationMode="pessimistic"/>}
+                        </Toolbar>}>
                 <TabbedForm.Tab
                     label="Thông tin khuyến mãi"
                     sx={{maxWidth: '40em'}}
                 >
                     <Grid container columnSpacing={2}>
                         <Grid item xs={12} sm={12}>
-                            <ImageField source={"thumbnail"} label="Ảnh" sx={{margin: 'auto'}}/>
+                            <ReturnedImg/>
                         </Grid>
                         <Grid item xs={12} sm={12}>
                             <TextInput source="name" label="Tên khuyến mãi" validate={required()} fullWidth/>

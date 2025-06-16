@@ -2,6 +2,7 @@ package vn.edu.hcmuaf.cdw.ShopThoiTrang.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.sql.Date;
@@ -26,6 +27,7 @@ public class ImageProduct {
     @JsonBackReference
     private Product product;
 
+    @NotNull(message = "Image url is required")
     @Column(name = "img_url")
     private String url;
 

@@ -34,6 +34,9 @@ public class SecurityConfiguration {
     UserDetailsServiceImpl userDetailsService;
 
     @Autowired
+    private FrontendProperties frontendProperties;
+
+    @Autowired
     private AuthEntryPointJwt unauthorizedHandler;
 
     @Bean
@@ -68,22 +71,17 @@ public class SecurityConfiguration {
 
         http.csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                //   .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(unauthorizedHandler))
+                //  .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(unauthorizedHandler))
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers("/api/auth/**").permitAll()
-                                .requestMatchers("/api/test/**").authenticated()
-                                .requestMatchers("/api/product/**").permitAll()
-                                .requestMatchers("/api/payosse/**").permitAll()
-                                .requestMatchers("/api/user/**").permitAll()
-                                .requestMatchers("/api/category/**").permitAll()
-                                .requestMatchers("/api/payos/**").permitAll()
-                                .requestMatchers("/api/blog/**").permitAll()
-                                .requestMatchers("/api/import-invoice/**").permitAll()
-                                .requestMatchers("/api/order/**").permitAll()
-                                .requestMatchers("/api/order-status/**").permitAll()
-                                .requestMatchers(("/api/promotion/**")).permitAll()
+                                .requestMatchers("/api/order-status").permitAll()
+                                .requestMatchers("/api/review/product/{productId}").permitAll()
+                                .requestMatchers("/api/blog/{id}", "/api/blog/user").permitAll()
                                 .requestMatchers("/api/contact/**").permitAll()
-                                .requestMatchers("/api/review/**").permitAll()
+                                .requestMatchers("/api/coupon").permitAll()
+                                .requestMatchers("/api/product/user").permitAll()
+                                .requestMatchers("/api/payos/**").permitAll()
+                                .requestMatchers("/ws/**").permitAll()
                                 .anyRequest().authenticated()
                 );
 
@@ -95,7 +93,7 @@ public class SecurityConfiguration {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:3001")); // specify the allowed origin here
+        configuration.setAllowedOrigins(Arrays.asList(frontendProperties.getUrl(), frontendProperties.getAdmin(), "http://localhost:3000", "http://localhost:3001")); // specify the allowed origin here
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowCredentials(true);
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));

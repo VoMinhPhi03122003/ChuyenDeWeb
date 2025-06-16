@@ -3,6 +3,7 @@ package vn.edu.hcmuaf.cdw.ShopThoiTrang.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import vn.edu.hcmuaf.cdw.ShopThoiTrang.model.dto.PaymentReqDTO;
 import vn.edu.hcmuaf.cdw.ShopThoiTrang.model.dto.PaymentResDTO;
@@ -15,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @RestController
+@PreAuthorize("hasRole('USER')")
 @RequestMapping("/api/payment")
 public class PaymentController {
     @Autowired
@@ -50,6 +52,7 @@ public class PaymentController {
         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
 
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
+        cld.add(Calendar.HOUR, 7);
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
         String vnp_CreateDate = formatter.format(cld.getTime());
         vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
@@ -91,30 +94,4 @@ public class PaymentController {
                 .url(paymentUrl)
                 .build());
     }
-
-//    @GetMapping("/payment-info")
-//    public ResponseEntity<?> transaction(
-//            @RequestParam(value = "vnp_Amount") String amount,
-//            @RequestParam(value = "vnp_OrderInfo") String orderInfo,
-//            @RequestParam(value = "vnp_BankCode") String bank,
-//            @RequestParam(value = "vnp_PayDate") String createDate,
-//            @RequestParam(value = "vnp_ResponseCode") String code
-//    ) {
-//        TransactionStatusDTO status = null;
-//        if (code.equals("00")) {
-//            status = TransactionStatusDTO.builder()
-//                    .status("ok")
-//                    .message("successfully")
-//                    .data("")
-//                    .build();
-//        } else {
-//            status = TransactionStatusDTO.builder()
-//                    .status("bad")
-//                    .message("failed")
-//                    .data("")
-//                    .build();
-//        }
-//        return ResponseEntity.ok(status);
-//
-//    }
 }

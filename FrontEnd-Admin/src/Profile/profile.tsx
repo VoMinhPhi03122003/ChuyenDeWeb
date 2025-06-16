@@ -143,12 +143,12 @@ export const ProfileEdit = ({staticContext, ...props}: any) => {
             dataProvider.update("user", {previousData: profile, id: profile.id, data: values})
                 .then(() => {
                     setSaving(false);
-                    notify("Thay đổi thông tin cá nhân thành công");
+                    notify("Thay đổi thông tin cá nhân thành công", {type: 'success'});
                     refreshProfile();
                 }).catch((error: any) => {
                 console.log(error)
                 setSaving(false);
-                notify("Thay đổi thông tin cá nhân thất bại");
+                notify("Thay đổi thông tin cá nhân thất bại", {type: 'error'});
             });
         }, [dataProvider, profile, notify, refreshProfile]);
 
@@ -170,7 +170,7 @@ export const ProfileEdit = ({staticContext, ...props}: any) => {
                         onSubmit={handleSave}
                         toolbar={<Toolbar>
                             <SaveButton
-                                label="Save"
+                                label="Lưu"
                                 alwaysEnable
                             />
                         </Toolbar>}>

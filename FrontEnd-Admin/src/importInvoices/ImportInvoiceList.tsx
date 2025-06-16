@@ -12,24 +12,26 @@ import {
     TextInput,
     TopToolbar, useCreate, useListController
 } from 'react-admin';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Select, Stack } from '@mui/material';
+import {Button, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Select, Stack} from '@mui/material';
 import ImportInvoiceShow from "./ImportInvoiceShow";
 import * as XLSX from 'xlsx';
 import {ChangeEvent, useEffect, useRef, useState} from "react";
+import {authProvider} from "../authProvider";
+import {checkPermission} from "../helpers";
 
 interface Field {
     label: string;
     value: string;
 }
 
-const ListActions = () => {
+const ListActions = ({permissions}: any) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [open, setOpen] = useState(false);
     const [columns, setColumns] = useState<string[]>([]);
     const [mapping, setMapping] = useState<Record<string, string>>({});
     const [data, setData] = useState<string[][]>([]);
     const [dataMapping, setDataMapping] = useState<any[]>([]);
-    const [create, { isLoading, error }] = useCreate('import-invoice', {data: {importInvoiceDetails: dataMapping}});
+    const [create, {isLoading, error}] = useCreate('import-invoice', {data: {importInvoiceDetails: dataMapping}});
     const handleImportClick = () => {
         fileInputRef.current?.click();
     };
@@ -40,9 +42,9 @@ const ListActions = () => {
 
         try {
             const data = await file.arrayBuffer();
-            const workbook = XLSX.read(data, { type: 'array' });
+            const workbook = XLSX.read(data, {type: 'array'});
             const sheet = workbook.Sheets[workbook.SheetNames[0]];
-            const json: any = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+            const json: any = XLSX.utils.sheet_to_json(sheet, {header: 1});
             setColumns(json[0]);
             setData(json.slice(1));
             setOpen(true);
@@ -56,7 +58,7 @@ const ListActions = () => {
     };
 
     const handleMappingChange = (field: string) => (event: React.ChangeEvent<{ value: unknown }>) => {
-        setMapping({ ...mapping, [field]: event.target.value as string });
+        setMapping({...mapping, [field]: event.target.value as string});
     };
 
     const handleImport = () => {
@@ -74,7 +76,7 @@ const ListActions = () => {
         // Gọi hàm create với dữ liệu đã được ánh xạ
         create(
             'import-invoice',
-            { data: {importInvoiceDetails: mappedData } },
+            {data: {importInvoiceDetails: mappedData}},
             {
                 onSuccess: () => {
                     setOpen(false);
@@ -84,37 +86,48 @@ const ListActions = () => {
     }
 
     const fields: Field[] = [
-        { label: 'Mã Sản phẩm', value: 'product' },
-        { label: 'Mã biến thể', value: 'variation' },
-        { label: 'Mã kích cỡ', value: 'size' },
-        { label: 'Số lượng', value: 'quantity' },
-        { label: 'Giá nhập', value: 'importPrice' }
+        {label: 'Mã Sản phẩm', value: 'product'},
+        {label: 'Mã biến thể', value: 'variation'},
+        {label: 'Mã kích cỡ', value: 'size'},
+        {label: 'Số lượng', value: 'quantity'},
+        {label: 'Giá nhập', value: 'importPrice'}
     ];
 
     return (
         <>
-            <TopToolbar>
-                <SelectColumnsButton />
-                <FilterButton />
-                <CreateButton label={"Nhập hàng"} />
-                <Button onClick={handleImportClick}>Nhập hàng từ Excel</Button>
+            <TopToolbar sx={{
+                justifyContent: "center",
+                alignItems: "center"
+
+            }}>
+                <SelectColumnsButton/>
+                {permissions && checkPermission(permissions, "INVOICE_CREATE") && <CreateButton label={"Nhập hàng"}/>}
+                {permissions && checkPermission(permissions, "INVOICE_CREATE") &&
+                    <Button onClick={handleImportClick}>Nhập hàng từ Excel</Button>}
                 <input
                     type="file"
                     ref={fileInputRef}
-                    style={{ display: 'none' }}
+                    style={{display: 'none'}}
                     onChange={handleFileChange}
                     accept=".xlsx, .xls"
                 />
             </TopToolbar>
-            <Dialog open={open} onClose={() => setOpen(false)}>
+            <Dialog sx={{
+                '& .MuiDialog-paper': {
+                    width: '50%'
+                }
+
+            }} open={open} onClose={() => setOpen(false)}>
                 <DialogTitle>Chọn cột tương ứng</DialogTitle>
                 <DialogContent>
                     {fields.map(field => (
-                        <div key={field.value} style={{ marginBottom: '16px' }}>
+                        <div key={field.value} style={{marginBottom: '16px'}}>
                             <label>{field.label}</label>
                             <Select value={mapping[field.value] || ''}
                                     fullWidth
-                                    onChange={event => handleMappingChange(field.value)(event as ChangeEvent<{ value: unknown }>)} >
+                                    onChange={event => handleMappingChange(field.value)(event as ChangeEvent<{
+                                        value: unknown
+                                    }>)}>
                                 {columns.map(column => (
                                     <MenuItem key={column} value={column}>{column}</MenuItem>
                                 ))}
@@ -131,11 +144,14 @@ const ListActions = () => {
     );
 };
 
-const postFilters = [
-    <TextInput label="Tìm kiếm..." source="q" alwaysOn/>,
-];
-
 const ImportInvoiceList = () => {
+    const [permissions, setPermissions] = React.useState<any>(null)
+    const fetch: any = authProvider.getPermissions(null);
+    useEffect(() => {
+        fetch.then((response: any) => {
+            setPermissions(response.permissions)
+        })
+    }, [])
     const {data, isLoading}: any = useListController();
 
     if (isLoading) return null;
@@ -148,21 +164,51 @@ const ImportInvoiceList = () => {
         return quantity;
     }
 
-    return data && (
+    return (
         <List
             sort={{field: 'id', order: 'ASC'}}
             perPage={10}
             pagination={false}
             component="div"
-            actions={<ListActions/>}
-            filters={postFilters}
+            actions={<ListActions permissions={permissions}/>}
+            sx={{
+                '@media(max-width:900px)': {
+                    '.RaList-main > .RaList-actions': {
+                        display: 'block',
+                        '.MuiToolbar-root.MuiToolbar-dense': {
+                            float: 'left'
+                        }
+                    }
+                },
+                '@media(max-width:600px)': {
+                    '.RaList-main > .RaList-actions': {
+                        display: 'block',
+                        '.MuiToolbar-root.MuiToolbar-regular': {
+                            float: 'left'
+                        }
+                    }
+                }
+            }}
+            empty={false}
         >
-            <DatagridConfigurable
-                rowClick="expand"
-                expandSingle
-                expand={<ImportInvoiceShow/>}
-                bulkActionButtons={false}
-            >
+            <DatagridConfigurable rowClick="expand" expandSingle expand={<ImportInvoiceShow/>} bulkActionButtons={false}
+                                  empty={
+                                      <div style={
+                                          {
+                                              display: 'flex',
+                                              justifyContent: 'center',
+                                              alignItems: 'center',
+                                              height: '100%'
+                                          }
+                                      }>
+                                          <p style={
+                                              {
+                                                  fontSize: '28px',
+                                                  color: '#8f8f8f'
+                                              }
+                                          }>Hiện không có dữ liệu</p>
+                                      </div>
+                                  }>
                 <TextField source="id" label={"Mã nhập hàng"}/>
                 <DateField source="importDate" label={"Ngày nhập hàng"}/>
                 <TextField source="importBy.username" label={"Người nhập hàng"}/>

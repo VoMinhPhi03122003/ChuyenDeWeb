@@ -6,21 +6,16 @@ import {
     useRecordContext,
     required,
     ImageInput,
-    SimpleFormIterator, ArrayInput, NumberInput, BooleanInput,
+    SimpleFormIterator, ArrayInput, NumberField, NullableBooleanInput, useNotify, SaveButton, TopToolbar, DeleteButton,
 } from "react-admin";
-import React from "react";
+import React, {useEffect} from "react";
 import {Product} from "../types";
 import {ProductEditDetails} from "./ProductEditDetails";
 import {Grid, Typography} from "@mui/material";
 import {useWatch} from "react-hook-form";
 import {ColorInput} from "react-admin-color-picker";
-
-
-const RichTextInput = React.lazy(() =>
-    import('ra-input-rich-text').then(module => ({
-        default: module.RichTextInput,
-    }))
-);
+import {authProvider} from "../authProvider";
+import {checkPermission} from "../helpers";
 
 const ProductTitle = () => {
     const record = useRecordContext<Product>();
@@ -73,9 +68,26 @@ const ReturnedImg = () => {
 };
 
 export const ProductEdit = (props: any) => {
+    const notify = useNotify();
+    const [permissions, setPermissions] = React.useState<any>(null)
+    const fetch: any = authProvider.getPermissions(null);
+    useEffect(() => {
+        fetch.then((response: any) => {
+            if (response && !checkPermission(response.permissions, "PRODUCT_UPDATE")) {
+                window.location.replace("/#/product");
+                notify("Permission denied", {type: 'error'});
+            } else
+                setPermissions(response.permissions)
+        })
+    }, [props]);
+
     return (
         <Edit title={<ProductTitle/>} hasShow={false}>
-            <TabbedForm>
+            <TabbedForm toolbar={<TopToolbar sx={{justifyContent: 'space-between'}}>
+                <SaveButton/>
+                {permissions && checkPermission(permissions, "PRODUCT_DELETE") &&
+                    <DeleteButton mutationMode={'pessimistic'}/>}
+            </TopToolbar>}>
                 <TabbedForm.Tab
                     label="Ảnh"
                     sx={{maxWidth: '40em'}}
@@ -108,17 +120,40 @@ export const ProductEdit = (props: any) => {
                     sx={{maxWidth: '100%'}}
                 >
                     <ArrayInput source={`variations`} label={`Biến thể`} fullWidth>
-                        <SimpleFormIterator inline >
-                            <NumberInput source={"id"} label={"ID"} disabled sx={{width: 80}}/>
+                        <SimpleFormIterator inline>
+                            <NumberField source={"id"} label={"ID"} sx={{
+                                width: 80, alignItems: "center",
+                                display: "flex",
+                                marginTop: "8px",
+                                border: "solid 1px",
+                                borderRadius: "10px",
+                                padding: "8px",
+                                textAlign: "center"
+                            }}/>
                             <TextInput source="color" label="Màu sắc"/>
                             <ColorInput source="colorCode" label="Mã màu" isRequired={true}/>
                             <ArrayInput sx={{marginLeft: 10}} source={`sizes`} label={`Sizes`}>
                                 <SimpleFormIterator inline>
-                                    <NumberInput source={"id"} label={"ID"} disabled sx={{width: 80}}/>
+                                    <NumberField source={"id"} label={"ID"} sx={{
+                                        width: 80, alignItems: "center",
+                                        display: "flex",
+                                        marginTop: "8px",
+                                        border: "solid 1px",
+                                        borderRadius: "10px",
+                                        padding: "8px",
+                                        textAlign: "center"
+                                    }}/>
                                     <TextInput source="size" label="Kích cỡ"/>
-                                    <NumberInput sx={{width: "20%"}} source="stock" label="Số lượng" disabled
-                                    />
-                                    <BooleanInput source="status" label="Trạng thái"/>
+                                    <NumberField source="stock" label="Số lượng" sx={{
+                                        width: 80, alignItems: "center",
+                                        display: "flex",
+                                        marginTop: "8px",
+                                        border: "solid 1px",
+                                        borderRadius: "10px",
+                                        padding: "8px",
+                                        textAlign: "center"
+                                    }}/>
+                                    <NullableBooleanInput source="status" label="Trạng thái"/>
                                 </SimpleFormIterator>
                             </ArrayInput>
                         </SimpleFormIterator>
@@ -129,5 +164,6 @@ export const ProductEdit = (props: any) => {
         </Edit>
     )
 };
+
 
 const req = [required()];

@@ -5,9 +5,15 @@ import Breadcrumb from "../../wrappers/breadcrumb/Breadcrumb";
 import {Button, Col, Container, Form, Modal, Row, Table} from "react-bootstrap";
 import axios from "axios";
 import {useToasts} from "react-toast-notifications";
-import {Navigate} from "react-router-dom";
-import {Rating, TextField} from "@mui/material";
-import {forEach} from "react-bootstrap/ElementChildren";
+import {Navigate, useNavigate} from "react-router-dom";
+import {IconButton, Rating, TextField, Tooltip} from "@mui/material";
+import "../../assets/css/review.css";
+import {getBase64, imgProvider} from "../../imgProvider/imgProvider";
+import toast from "react-hot-toast";
+import {ClipLoader} from "react-spinners";
+import ThumbDownOffAltIcon from '@mui/icons-material/ThumbDownOffAlt';
+import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
+import SyncIcon from '@mui/icons-material/Sync';
 
 const MyAccount = () => {
     const {addToast} = useToasts();
@@ -27,33 +33,41 @@ const MyAccount = () => {
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [oldPassword, setOldPassword] = useState('');
+    const [file, setFile]: any = useState(null);
+    const [loading, setLoading] = useState(false);
 
-    const [userProfile, setUserProfile]: any = useState(null);
-
-    const checkUser = () => {
-        if (!user)
-            return <Navigate to={'/login-register'}/>
+    function handleChange(e: any) {
+        setFile(e.target.files[0]);
     }
 
-    checkUser();
-
+    const [userProfile, setUserProfile]: any = useState(null);
+    const navigate = useNavigate();
     useEffect(() => {
         const fetchUserProfile = async () => {
             await axios.get(`${process.env.REACT_APP_API_ENDPOINT}user/${idUser}`, {
                 headers: {
                     Accept: 'application/json',
                     "Content-Type": "application/json"
-                }
+                },
+                withCredentials: true
             }).then(response => {
                 setUserProfile(response.data);
+                setFullName(response.data.userInfo.fullName);
+                setPhone(response.data.userInfo.phone);
+                setEmail(response.data.userInfo.email);
             })
         }
-        fetchUserProfile().then();
-    }, []);
+        if (!user || !idUser)
+            navigate('/login-register');
+        else {
+            fetchUserProfile().then();
+        }
 
-    console.log(userProfile)
+    }, [showOrderDetailModal, showOrderStatusModal, showOrderReviewModal]);
+
 
     const displaySelectedImage = (event: any) => {
+        handleChange(event);
         const selectedImage: any = document.getElementById('selectedAvatar');
         const fileInput = event.target;
 
@@ -68,7 +82,7 @@ const MyAccount = () => {
         }
     };
 
-    const updateProfile = () => {
+    const updateProfile = async () => {
         if (fullName === '' || phone === '' || email === '') {
             addToast("Vui lòng nhập đầy đủ thông tin", {
                 appearance: 'error',
@@ -78,10 +92,14 @@ const MyAccount = () => {
             return;
         }
 
+        setLoading(true)
+
+        let newImg = '';
         // check info change
         if (fullName === userProfile.userInfo.fullName &&
             phone === userProfile.userInfo.phone &&
-            email === userProfile.userInfo.email) {
+            email === userProfile.userInfo.email && file === null
+        ) {
             addToast("Không có thông tin nào thay đổi", {
                 appearance: 'error',
                 autoDismiss: true,
@@ -89,19 +107,29 @@ const MyAccount = () => {
             });
             return;
         }
-
-        const selectedImage: any = document.getElementById('selectedAvatar');
+        if (file !== null) {
+            await getBase64(file)
+                .then(async res => {
+                    newImg = await imgProvider(res)
+                })
+                .catch(err => {
+                    console.log(err)
+                    toast.error("Lỗi upload ảnh", {duration: 3000})
+                    setLoading(false)
+                    return;
+                })
+        }
         axios.put(`${process.env.REACT_APP_API_ENDPOINT}user/update-info`, null, {
             headers: {
                 Accept: 'application/json',
                 "Content-Type": "application/json"
-            }, withCredentials: true
-            ,
+            }, withCredentials: true,
             params: {
                 id: userProfile.id,
                 name: fullName,
                 phone: phone,
                 email: email,
+                avtUrl: newImg !== '' ? newImg : userProfile.userInfo.avtUrl
             }
         }).then(response => {
             console.log(response)
@@ -114,6 +142,7 @@ const MyAccount = () => {
             console.log(error)
             addToast("Cập nhật thông tin thất bại", {appearance: 'error', autoDismiss: true, autoDismissTimeout: 3000});
         });
+        setLoading(false)
     }
 
     const changePassword = () => {
@@ -138,6 +167,7 @@ const MyAccount = () => {
                 Accept: 'application/json',
                 "Content-Type": "application/json"
             },
+            withCredentials: true,
             params: {
                 id: userProfile.id,
                 oldPassword: oldPassword,
@@ -219,7 +249,7 @@ const MyAccount = () => {
                                                             <div className="billing-info">
                                                                 <label>Họ tên</label>
                                                                 <input type="text"
-                                                                       value={userProfile.userInfo.fullName}
+                                                                       value={fullName}
                                                                        onChange={(e) => setFullName(e.target.value)}/>
                                                             </div>
                                                         </div>
@@ -227,7 +257,7 @@ const MyAccount = () => {
                                                             <div className="billing-info">
                                                                 <label>Số điện thoại</label>
                                                                 <input type="text"
-                                                                       value={userProfile.userInfo.phone}
+                                                                       value={phone}
                                                                        onChange={(e) => setPhone(e.target.value)}/>
                                                             </div>
                                                         </div>
@@ -235,15 +265,21 @@ const MyAccount = () => {
                                                             <div className="billing-info">
                                                                 <label>Email</label>
                                                                 <input type="email"
-                                                                       value={userProfile.userInfo.email}
+                                                                       value={email}
                                                                        onChange={(e) => setEmail(e.target.value)}/>
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <div className="billing-back-btn">
                                                         <div className="billing-btn">
-                                                            <button type="submit" onClick={updateProfile}>Lưu thay đổi
-                                                            </button>
+                                                            {loading ?
+                                                                <button disabled
+                                                                        className={'d-flex justify-content-center'}>
+                                                                    <ClipLoader color="#36d7b7" size={14}/>
+                                                                </button> :
+                                                                <button type="submit" onClick={updateProfile}>Lưu thay
+                                                                    đổi
+                                                                </button>}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -302,11 +338,11 @@ const MyAccount = () => {
                                                     </tr>
                                                     </thead>
                                                     <tbody>
-                                                    {userProfile.orders.map((order: any, index: number) => (
+                                                    {userProfile.orders.sort((a: any, b: any) => a.id - b.id).map((order: any, index: number) => (
                                                         <tr key={index}>
                                                             <td>{index + 1}</td>
                                                             <td>{order.id}</td>
-                                                            <td>{formatPrice(order.totalAmount + order.shippingFee)}</td>
+                                                            <td>{order && formatPrice(order.totalAmount + order.shippingFee - (order.coupon !== null && order.coupon !== undefined ? order.coupon.price : 0))}</td>
                                                             <td>{formatStatus(order.status)}</td>
                                                             <td>
                                                                 <Button variant="primary" onClick={() => {
@@ -323,7 +359,7 @@ const MyAccount = () => {
                                                                     }}
                                                                     > Đánh giá </Button>
                                                                 )}
-                                                                {order.status.id === 5 && !checkReview(order)  && (
+                                                                {order.status.id === 5 && !checkReview(order) && (
                                                                     <Button variant="outline-info" onClick={() => {
                                                                         setshowOrderReviewModal(true);
                                                                         setOrderDetail(order);
@@ -360,7 +396,7 @@ const MyAccount = () => {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <OrderDetailModal order={orderDetail}/>
+                    <OrderDetailModal order={orderDetail} setshowOrderDetailModal={setshowOrderDetailModal}/>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="primary" onClick={() => {
@@ -407,7 +443,8 @@ const MyAccount = () => {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <OrderReviewModal order={orderDetail} addToast={addToast} />
+                    <OrderReviewModal order={orderDetail} addToast={addToast}
+                                      setshowOrderReviewModal={setshowOrderReviewModal}/>
                 </Modal.Body>
             </Modal>
 
@@ -456,7 +493,33 @@ const formatPrice = (price: any) => {
     return price.toLocaleString('it-IT', {style: 'currency', currency: 'VND'});
 }
 
-const OrderDetailModal = ({order}: any) => {
+const OrderDetailModal = ({order, setshowOrderDetailModal}: any) => {
+    const {addToast} = useToasts();
+
+    const cancelOrder = async () => {
+        await axios.put(`${process.env.REACT_APP_API_ENDPOINT}order/${order.id}/cancel`, null, {
+            headers: {
+                Accept: 'application/json',
+                "Content-Type": "application/json"
+            },
+            withCredentials: true
+        }).then(response => {
+            addToast("Hủy đơn hàng thành công", {
+                appearance: 'success',
+                autoDismiss: true,
+                autoDismissTimeout: 3000
+            });
+            setshowOrderDetailModal(false);
+
+        }).catch(error => {
+            addToast("Hủy đơn hàng thất bại", {
+                appearance: 'error',
+                autoDismiss: true,
+                autoDismissTimeout: 3000
+            });
+        });
+    }
+
     return (
         <Container>
             <Row>
@@ -528,8 +591,12 @@ const OrderDetailModal = ({order}: any) => {
                             <td>{formatPrice(order.shippingFee)}</td>
                         </tr>
                         <tr>
+                            <th colSpan={3}>Giảm giá</th>
+                            <td style={{color: 'red'}}> - {order && formatPrice(order.coupon !== null && order.coupon !== undefined ? order.coupon.price : 0)}</td>
+                        </tr>
+                        <tr>
                             <th colSpan={3}>Tổng tiền</th>
-                            <td>{formatPrice(order.totalAmount + order.shippingFee)}</td>
+                            <td>{formatPrice(order.totalAmount + order.shippingFee - (order.coupon ? order.coupon.price : 0))}</td>
                         </tr>
                         </tbody>
                     </Table>
@@ -550,7 +617,7 @@ const OrderDetailModal = ({order}: any) => {
                             <th>Trạng thái thanh toán</th>
                             <td>{order.paymentStatus === "yes" ? "Đã thanh toán" : "Chưa thanh toán"}</td>
                         </tr>
-                        {order.paymentMethod === "vnpay" || order.paymentMethod === "payos" && order.paymentStatus === "yes" && (
+                        {(order.paymentMethod === "vnpay" || order.paymentMethod === "payos") && order.paymentStatus === "yes" && (
                             <tr>
                                 <th>Mã thanh toán</th>
                                 <td>{order.paymentCode}</td>
@@ -565,14 +632,23 @@ const OrderDetailModal = ({order}: any) => {
                             </td>
                         </tr>
                         <tr>
+                            <th>
+                                Mã đơn hàng từ hệ thống
+                            </th>
+                            <td>
+                                {order.generated_order_id}
+                            </td>
+                        </tr>
+                        <tr>
                             <th>Trạng thái</th>
                             <td>{formatStatus(order.status)}</td>
                         </tr>
                         </tbody>
                     </Table>
 
-                    {order.status.id === 1 && (
-                        <Button variant="danger" className={"mt-25"}>Hủy đơn hàng</Button>
+                    {order.status.id === 1 && order.paymentMethod === "cod" && (
+                        <Button variant="danger" className={"mt-25"}
+                                onClick={() => cancelOrder()}>Hủy đơn hàng</Button>
                     )}
 
                 </Col>
@@ -582,7 +658,7 @@ const OrderDetailModal = ({order}: any) => {
 
 }
 
-const OrderReviewModal = ({order, addToast}: any) => {
+const OrderReviewModal = ({order, addToast, setshowOrderReviewModal}: any) => {
     const user: any = localStorage.getItem('user');
 
     const idUser: any = JSON.parse(user) ? JSON.parse(user).id : null;
@@ -594,8 +670,7 @@ const OrderReviewModal = ({order, addToast}: any) => {
     const [product, setProduct] = useState(null);
 
 
-
-    const submitReview = () => {
+    const submitReview = async () => {
         if (rating === 0 || comment === '') {
             addToast("Vui lòng nhập đầy đủ thông tin", {
                 appearance: 'error',
@@ -605,7 +680,7 @@ const OrderReviewModal = ({order, addToast}: any) => {
             return;
         }
 
-        axios.post(`${process.env.REACT_APP_API_ENDPOINT}review`, {
+        await axios.post(`${process.env.REACT_APP_API_ENDPOINT}review`, {
             content: comment,
             rating: rating,
             product: product,
@@ -615,8 +690,10 @@ const OrderReviewModal = ({order, addToast}: any) => {
             headers: {
                 Accept: 'application/json',
                 "Content-Type": "application/json"
-            }
+            },
+            withCredentials: true
         }).then(response => {
+            setshowOrderReviewModal(false);
             addToast("Đánh giá thành công", {
                 appearance: 'success',
                 autoDismiss: true,
@@ -634,7 +711,7 @@ const OrderReviewModal = ({order, addToast}: any) => {
                         <h4>Đánh giá đơn hàng</h4>
                         <Table striped>
                             <thead>
-                            <tr>
+                            <tr style={{textAlign: "center"}}>
                                 <th>#</th>
                                 <th>Tên sản phẩm</th>
                                 <th>Trạng thái</th>
@@ -642,12 +719,14 @@ const OrderReviewModal = ({order, addToast}: any) => {
                             </thead>
                             <tbody className={"mb-20"}>
                             {order.orderDetails.map((orderDetail: any, index: number) => (
-                                <tr key={index}>
+                                <tr key={index} style={{
+                                    verticalAlign: "middle"
+                                }}>
                                     <td>{index + 1}</td>
                                     <td>{orderDetail.productId.name} /
                                         ({orderDetail.variation.color} / {orderDetail.size.size})
                                     </td>
-                                    <td>
+                                    <td className={"review-center"}>
                                         {orderDetail.review == null && (
                                             <Button variant="outline-warning" onClick={() => {
                                                 setshowReviewModal(true);
@@ -658,14 +737,35 @@ const OrderReviewModal = ({order, addToast}: any) => {
                                         )}
                                         {orderDetail.review != null && (
                                             <>
-                                                <Rating name="read-only" value={orderDetail.review.rating} readOnly style={{textAlign: 'center'}}/>
+                                                <Rating name="read-only" value={orderDetail.review.rating} readOnly
+                                                        style={{textAlign: 'center', marginRight: '10px'}}/>
                                                 <TextField
                                                     id="outlined-multiline-static"
                                                     multiline
                                                     defaultValue={orderDetail.review.content}
                                                     variant="outlined"
                                                     disabled
+                                                    fullWidth
+                                                    style={{marginRight: '10px'}}
                                                 />
+                                                {orderDetail.review.type === 0 && <Tooltip
+                                                    title="Nhận xét của bạn đã bị shop từ chối và sẽ không hiển thị ở đánh giá sản phẩm">
+                                                    <IconButton>
+                                                        <ThumbDownOffAltIcon color={'error'}/>
+                                                    </IconButton>
+                                                </Tooltip>}
+                                                {orderDetail.review.type === 2 && <Tooltip
+                                                    title="Nhận xét của bạn được phê duyệt và sẽ hiển thị công khai ở đánh giá sản phẩm">
+                                                    <IconButton>
+                                                        <ThumbUpOffAltIcon color={'success'}/>
+                                                    </IconButton>
+                                                </Tooltip>}
+                                                {orderDetail.review.type === 1 && <Tooltip
+                                                    title="Nhận xét của bạn đang đợi phê duyệt, sẽ chưa hiển thị ở đánh giá sản phẩm">
+                                                    <IconButton>
+                                                        <SyncIcon color={'warning'}/>
+                                                    </IconButton>
+                                                </Tooltip>}
                                             </>
                                         )}
                                     </td>

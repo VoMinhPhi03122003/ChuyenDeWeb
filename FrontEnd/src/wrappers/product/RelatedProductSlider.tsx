@@ -4,7 +4,7 @@ import Swiper from "react-id-swiper";
 import SectionTitle from "../../components/section-title/SectionTitle";
 import ProductGrid from "./ProductGrid";
 
-const RelatedProductSlider = ({ spaceBottomClass, category } : any) => {
+const RelatedProductSlider = ({spaceBottomClass, category}: any) => {
     const settings = {
         loop: false,
         slidesPerView: 4,
@@ -25,6 +25,7 @@ const RelatedProductSlider = ({ spaceBottomClass, category } : any) => {
         }
     };
 
+
     return (
         <div
             className={`related-product-area ${
@@ -33,15 +34,16 @@ const RelatedProductSlider = ({ spaceBottomClass, category } : any) => {
         >
             <div className="container">
                 <SectionTitle
-                    titleText="Related Products"
+                    titleText="Sản phẩm liên quan"
                     positionClass="text-center"
                     spaceClass="mb-50"
                 />
                 <div className="row">
-                    <Swiper {...settings}>
+                    <Swiper {...settings} >
                         <ProductGrid
                             category={category}
-                            limit={6}
+                            limit={4}
+                            type={""}
                             sliderClassName="swiper-slide"
                         />
                     </Swiper>

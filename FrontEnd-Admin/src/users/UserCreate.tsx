@@ -10,10 +10,12 @@ import {
     AutocompleteInput,
     ArrayInput,
     SimpleFormIterator,
-    Toolbar, SaveButton, ImageInput, ImageField,
+    Toolbar, SaveButton, ImageInput, ImageField, useNotify,
 } from 'react-admin';
 import {Box, Grid, Typography} from '@mui/material';
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import {authProvider} from "../authProvider";
+import {checkPermission} from "../helpers";
 
 
 export const checkPassword = (password: string) => {
@@ -75,6 +77,16 @@ const validateForm = (values: Record<any, any>): Record<any, any> => {
 }
 
 const UserCreate = () => {
+    const notify = useNotify();
+    const fetch: any = authProvider.getPermissions(null);
+    useEffect(() => {
+        fetch.then((response: any) => {
+            if (response && !checkPermission(response.permissions, "USER_CREATE")) {
+                window.location.replace("/#/user");
+                notify("Permission denied", {type: 'error'});
+            }
+        })
+    }, [])
 
     const [admin, setAdmin] = useState(true)
 
@@ -106,7 +118,7 @@ const UserCreate = () => {
             ward: undefined
         }} toolbar={<Toolbar>
             <SaveButton
-                label="Create"
+                label="Tạo"
                 alwaysEnable
             />
         </Toolbar>}>
@@ -148,41 +160,6 @@ const UserCreate = () => {
                                 label={"SĐT"}
                                 fullWidth
                             />
-                            <Box mt="1em"/>
-
-                            <Typography variant="h6" gutterBottom>
-                                Địa chỉ
-                            </Typography>
-                            <TextInput
-                                source="address"
-                                multiline
-                                fullWidth
-                                helperText={false}
-                            />
-                            <Box display={{xs: 'block', sm: 'flex'}}>
-                                <Box flex={2} mr={{xs: 0, sm: '0.5em'}}>
-                                    <TextInput
-                                        source="province"
-                                        fullWidth
-                                        helperText={false}
-                                    />
-                                </Box>
-                                <Box flex={1} mr={{xs: 0, sm: '0.5em'}}>
-                                    <TextInput
-                                        source="district"
-                                        fullWidth
-                                        helperText={false}
-                                    />
-                                </Box>
-                                <Box flex={2}>
-                                    <TextInput
-                                        source="ward"
-                                        fullWidth
-                                        helperText={false}
-                                    />
-                                </Box>
-                            </Box>
-
                             <Box mt="1em"/>
 
                             <Typography variant="h6" gutterBottom>

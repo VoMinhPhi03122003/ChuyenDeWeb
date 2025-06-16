@@ -34,6 +34,7 @@ const Contact = () => {
                     Accept: 'application/json',
                     "Content-Type": "application/json"
                 },
+                withCredentials: true,
                 params: {
                     name: formData.name,
                     email: formData.email,
@@ -59,7 +60,7 @@ const Contact = () => {
     };
     useEffect(() => {
         if (map.current) {
-            const marker = new mapboxgl.Marker()
+            new mapboxgl.Marker()
                 .setLngLat([lng, lat])
                 .addTo(map);
             return;
@@ -76,7 +77,7 @@ const Contact = () => {
             .addTo(map.current);
 
         return () => map.current.remove(); // Clean up on unmount
-    });
+    }, []);
 
     return (
         <Fragment>

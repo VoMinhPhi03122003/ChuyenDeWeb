@@ -1,6 +1,7 @@
 package vn.edu.hcmuaf.cdw.ShopThoiTrang.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.sql.Date;

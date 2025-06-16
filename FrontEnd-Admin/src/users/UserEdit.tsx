@@ -12,16 +12,18 @@ import {
     BooleanInput,
     email,
     Toolbar,
-    SaveButton, ImageInput, ImageField,
+    SaveButton, ImageInput, ImageField, useNotify,
 } from 'react-admin';
 import {Grid, Box, Typography} from '@mui/material';
 
 import FullNameField from './FullNameField';
-import {useCallback, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {checkPassword} from "./UserCreate";
 import {useWatch} from 'react-hook-form';
+import {authProvider} from "../authProvider";
+import {checkPermission} from "../helpers";
 
-const ReturnedImg = () => {
+export const ReturnedImg = () => {
     const isReturned = useWatch({name: 'userInfo.avtUrl'});
     return isReturned ?
         <>
@@ -56,10 +58,12 @@ const ReturnedImg = () => {
 
 const ReturnedRole = (props: any) => {
     const isReturned = useWatch({name: 'role.id'});
-    if (isReturned === 1 || isReturned === null || isReturned === undefined) {
-        props.setAdmin(false)
-    } else
-        props.setAdmin(true)
+    useEffect(() => {
+        if (isReturned === 1 || isReturned === null || isReturned === undefined) {
+            props.setAdmin(false)
+        } else
+            props.setAdmin(true)
+    }, [isReturned, props]);
     return (
         <ReferenceInput label="Role" source="role.id" reference="role">
             <AutocompleteInput label={"Loại tài khoản"} optionText={"name"} optionValue={"id"}
@@ -68,6 +72,17 @@ const ReturnedRole = (props: any) => {
 };
 
 const UserEdit = () => {
+    const notify = useNotify();
+    const fetch: any = authProvider.getPermissions(null);
+    useEffect(() => {
+        fetch.then((response: any) => {
+            if (response && !checkPermission(response.permissions, "USER_UPDATE")) {
+                window.location.replace("/#/user");
+                notify("Permission denied", {type: 'error'});
+            }
+        })
+    }, [])
+
     const [admin, setAdmin] = useState(false)
     const [password, setPassword] = useState(false)
 
@@ -140,7 +155,7 @@ const UserEdit = () => {
         <Edit title={<UserTitle/>} hasShow={false}>
             <TabbedForm validate={validateForm} toolbar={<Toolbar>
                 <SaveButton
-                    label="Save"
+                    label="Lưu"
                     alwaysEnable
                 />
             </Toolbar>}>
@@ -185,40 +200,6 @@ const UserEdit = () => {
                                     label={"SĐT"}
                                     fullWidth
                                 />
-                                <Box mt="1em"/>
-
-                                <Typography variant="h6" gutterBottom>
-                                    Địa chỉ
-                                </Typography>
-                                <TextInput
-                                    source="address"
-                                    multiline
-                                    fullWidth
-                                    helperText={false}
-                                />
-                                <Box display={{xs: 'block', sm: 'flex'}}>
-                                    <Box flex={2} mr={{xs: 0, sm: '0.5em'}}>
-                                        <TextInput
-                                            source="province"
-                                            fullWidth
-                                            helperText={false}
-                                        />
-                                    </Box>
-                                    <Box flex={1} mr={{xs: 0, sm: '0.5em'}}>
-                                        <TextInput
-                                            source="district"
-                                            fullWidth
-                                            helperText={false}
-                                        />
-                                    </Box>
-                                    <Box flex={2}>
-                                        <TextInput
-                                            source="ward"
-                                            fullWidth
-                                            helperText={false}
-                                        />
-                                    </Box>
-                                </Box>
 
                                 <Box mt="1em"/>
                                 <BooleanInput source="status" label="Đổi mật khẩu" defaultValue={false}
@@ -251,10 +232,6 @@ const UserEdit = () => {
                                     source="enabled"
                                 />
                                 <ReturnedRole handleRoleChange={handleRoleChange} setAdmin={setAdmin}/>
-                                {/*<ReferenceInput label="Role" source="role.id" reference="role">*/}
-                                {/*    <AutocompleteInput label={"Loại tài khoản"} optionText={"name"} optionValue={"id"}*/}
-                                {/*                       onChange={handleRoleChange} allowCreate={false}/>*/}
-                                {/*</ReferenceInput>*/}
                                 <Typography variant="h6" gutterBottom>
                                     Ảnh đại diện
                                 </Typography>
