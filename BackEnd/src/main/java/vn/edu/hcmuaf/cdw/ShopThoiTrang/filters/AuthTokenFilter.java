@@ -43,37 +43,62 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
+            // Skip JWT validation for Google login endpoint
+            if (request.getRequestURI().equals("/api/auth/google")) {
+                logger.debug("Skipping JWT validation for Google login request");
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             String requestOrigin = request.getHeader("origin");
             String jwtName = (requestOrigin.equals(frontendProperties.getUrl()) || requestOrigin.equals("http://localhost:3000")) ? "shop2h" :
                     (requestOrigin.equals(frontendProperties.getAdmin()) || requestOrigin.equals("http://localhost:3001")) ? "shop2h_admin" : null;
-            if (jwtName == null)
+            if (jwtName == null) {
+                logger.error("Unknown origin: " + requestOrigin);
                 throw new RuntimeException("Unknown site");
+            }
+
             String jwt = parseJwt(request, jwtName);
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
                 String username = jwtUtils.getUserNameFromJwtToken(jwt);
+                logger.debug("Valid JWT token found for user: " + username);
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-            } else if (jwt == null || !jwtUtils.validateJwtToken(jwt)) {
+            } else {
+                logger.debug("JWT token invalid or missing, checking refresh token");
                 String refreshToken = jwtUtils.getJwtRefreshFromCookies(request, jwtName + "_refresh");
+                
                 if (refreshToken != null) {
-                    RefreshToken token = refreshTokenService.findByToken(refreshToken).map(refreshTokenService::verifyExpiration)
-                            .orElseThrow(() -> new TokenRefreshException(refreshToken, "Refresh token is not valid or expired!"));
+                    try {
+                        RefreshToken token = refreshTokenService.findByToken(refreshToken)
+                                .map(refreshTokenService::verifyExpiration)
+                                .orElseThrow(() -> new TokenRefreshException(refreshToken, "Refresh token is not valid or expired!"));
 
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(token.getUser().getUsername());
-                    ResponseCookie newJwtToken = jwtUtils.generateJwtCookie(userService.getUserByUsername(userDetails.getUsername()), jwtName);
-                    response.addHeader(HttpHeaders.SET_COOKIE, newJwtToken.toString());
+                        UserDetails userDetails = userDetailsService.loadUserByUsername(token.getUser().getUsername());
+                        ResponseCookie newJwtToken = jwtUtils.generateJwtCookie(userService.getUserByUsername(userDetails.getUsername()), jwtName);
+                        response.addHeader(HttpHeaders.SET_COOKIE, newJwtToken.toString());
 
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                        
+                        logger.debug("Successfully refreshed token for user: " + userDetails.getUsername());
+                    } catch (TokenRefreshException e) {
+                        logger.warn("Failed to refresh token: " + e.getMessage());
+                        // Clear the invalid refresh token cookie
+                        ResponseCookie cleanRefreshToken = jwtUtils.getCleanJwtRefreshCookie(jwtName + "_refresh");
+                        response.addHeader(HttpHeaders.SET_COOKIE, cleanRefreshToken.toString());
+                    }
+                } else {
+                    logger.debug("No refresh token found in cookies");
                 }
             }
         } catch (Exception e) {
-            logger.error("Cannot set user authentication: {}");
+            logger.error("Cannot set user authentication: " + e.getMessage(), e);
         }
         filterChain.doFilter(request, response);
     }
