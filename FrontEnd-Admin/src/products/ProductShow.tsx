@@ -3,7 +3,7 @@ import {
     ArrayField,
     BooleanField, ChipField, Datagrid, DatagridHeader,
     DateField, FunctionField, ImageField, Labeled, NumberField, RichTextField,
-    Show, SimpleShowLayout, TextField, useRecordContext, useShowContext, useShowController,
+    Show, SimpleShowLayout, TextField, useRecordContext, useShowContext, useShowController, useTheme,
 } from 'react-admin';
 import {Grid, ImageList, Stack, Table, Typography} from "@mui/material";
 import {ColorField} from "react-admin-color-picker";
@@ -47,29 +47,72 @@ const ProductShow = () => {
     return (
         <>
             <Show>
-                <Grid container spacing={2} sx={{margin: 2}}>
-                    <Grid item xs={12} sm={4} alignContent={"center"} justifyContent={"center"}>
-                        <Grid container spacing={2} sx={{margin: 2}}>
-                            <Grid item xs={12} sm={12}>
-                                <ImageField
-                                    source="imageUrl"
-                                    textAlign={"center"}
-                                    label={"Thumbnail"}
-                                    sx={{
-                                        '& img': {width: "60% !important", height: "60% !important"},
-                                        display: 'flex',
-                                        justifyContent: 'center'
-                                    }}
-                                />
-                            </Grid>
-                            <Grid item xs={12} sm={12}>
-                                <ImageField source="imgProducts"
-                                            sx={{display: 'flex', justifyContent: 'center'}}/>
-                            </Grid>
+                <Grid container margin={0} spacing={2} padding={4} sx={{width: "100%"}}>
+                    <Grid item xs={4} sm={"auto"} alignContent={"center"} justifyContent={"center"}
+                          sx={theme => ({
+                              [theme.breakpoints.down('sm')]: {
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                                  flexDirection: "column"
+                              },
+                              padding: 2
+                          })}>
+                        <Grid item xs={12} sm={12} sx={theme => ({
+                            [theme.breakpoints.down('sm')]: {
+                                'img.RaImageField-image': {
+                                    width: "100% !important"
+                                }
+                            }
+
+                        })}>
+                            <ImageField
+                                source="imageUrl"
+                                textAlign={"center"}
+                                label={"Thumbnail"}
+                                sx={{
+                                    '& img': {width: "60% !important", height: "60% !important"},
+                                    display: 'flex',
+                                    justifyContent: 'center'
+                                }}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={"auto"} sx={theme => ({
+                            [theme.breakpoints.down('sm')]: {
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                flexDirection: "column",
+                                '.RaImageField-image': {
+                                    width: '50px !important',
+                                    height: "50px !important"
+                                },
+                                '.RaImageField-list': {
+                                    margin: "5px",
+                                    padding: "5px !important",
+                                    'li:not(:last-child)': {
+                                        marginRight: "10px"
+                                    }
+                                }
+                            },
+                            overflowX: "scroll"
+                        })}>
+                            <ImageField source="imgProducts" src="url"
+                                        sx={{
+                                            display: 'flex', justifyContent: 'center',
+                                            '& .RaImageField-list': {
+                                                padding: "30px",
+                                                '.RaImageField-image': {
+                                                    width: "100%"
+                                                }
+                                            },
+                                            '& li': {
+                                                display: 'flex', justifyContent: 'center',
+                                                alignItems: "center"
+                                            }
+                                        }}/>
                         </Grid>
                     </Grid>
-                    <Grid item xs={12} sm={8} sx={{marginBottom: 4}}>
-                        <Stack spacing={2}>
+                    <Grid item xs={8} sm={"auto"}>
+                        <Stack spacing={2} sx={{height: "100%"}} justifyContent={"center"}>
                             <Labeled label="Mã sản phẩm">
                                 <TextField source="id" sx={{fontSize: 'larger'}}/>
                             </Labeled>
@@ -93,11 +136,18 @@ const ProductShow = () => {
                             />
                         </Stack>
                     </Grid>
-                    <Grid item xs={10} sm={10} sx={{backgroundColor: "lightgrey", borderRadius: 1, margin: "auto"}}>
+                    <Grid item xs={12} sm={12}
+                          sx={{
+                              backgroundColor: "lightgrey",
+                              borderRadius: 1,
+                              margin: "auto",
+                              padding: 2,
+                              marginTop: 1
+                          }}>
                         <RichTextField source="content" sx={{margin: 'auto'}}/>
                     </Grid>
 
-                    <Grid item xs={12} sm={10}>
+                    <Grid item xs={12}>
                         <ArrayField source="variations">
                             <Datagrid bulkActionButtons={false}>
                                 <NumberField source="id" label={'Mã sản phẩm'} textAlign={"center"}/>
@@ -117,7 +167,7 @@ const ProductShow = () => {
 
                     <Grid item xs={12} sm={6}>
                         <Labeled label="Ngày tạo">
-                            <DateField source="createdDate"/>
+                            <DateField source="releaseDate"/>
                         </Labeled>
                     </Grid>
                 </Grid>
